@@ -35,4 +35,5 @@ public class NamingStrategyConfig implements PhysicalNamingStrategy {
         // Quote the identifier to preserve exact casing and special characters
         return Identifier.toIdentifier(name.getText(), true); // true = quoted
     }
+
 }
