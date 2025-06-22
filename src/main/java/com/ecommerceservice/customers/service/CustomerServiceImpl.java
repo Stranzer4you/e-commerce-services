@@ -11,6 +11,7 @@ import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.utility.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -43,5 +44,15 @@ public class CustomerServiceImpl implements CustomerService{
         CustomerDao customerDao = customerMapper.customerRequesttoCustomerDao(addCustomerRequest);
         customerDao = customerRepository.save(customerDao);
         return  BaseResponseUtility.getBaseResponse(customerDao);
-    };
+    }
+
+    @Override
+    public BaseResponse getCustomerById(Long customerId) throws BadRequestException {
+        CustomerDao customerDao = customerRepository.findByIdAndIsActiveTrue(customerId);
+        if(ObjectUtils.isEmpty(customerDao)){
+            throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);
+        }
+        return BaseResponseUtility.getBaseResponse(customerDao);
+    }
+
 }

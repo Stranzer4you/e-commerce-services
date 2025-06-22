@@ -12,4 +12,6 @@ public interface CustomerRepository extends JpaRepository<CustomerDao , Long> {
     Boolean existsByEmail(String email);
 
     Boolean existsByPhoneNumber(String phoneNumber);
+
+    CustomerDao findByIdAndIsActiveTrue(Long customerId);
 }
