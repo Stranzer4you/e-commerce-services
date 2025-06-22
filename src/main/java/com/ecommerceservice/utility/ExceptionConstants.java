@@ -14,4 +14,14 @@ public class ExceptionConstants {
     public static final String INVALID_EMAIL_FORMAT = "invalid email format";
     public static final String CUSTOMER_EMAIL_ALREADY_EXISTS="customer email already exists";
     public static final String CUSTOMER_PHONE_NUMBER_ALREADY_EXISTS = "customer phone number already exists";
+    public static final String CUSTOMER_ID_SHOULD_NOT_BE_EMPTY = "customer Id shouldn't be empty";
+    public static final String TOTAL_AMOUNT_SHOULD_NOT_BE_EMPTY = "total paid amount shouldn't be empty";
+    public static final String TOTAL_AMOUNT_GREATER_THAN_ZERO = "total paid amount should be greater than 0";
+    public static final String PRODUCT_ID_SHOULD_NOT_BE_EMPTY = "product Id shouldn't be empty";
+    public static final String QUANTITY_SHOULD_NOT_BE_EMPTY = "quantity shouldn't be empty";
+    public static final String ORDERS_DETAILS_SHOULD_NOT_BE_EMPTY = "order details shouldn't be empty";
+    public static final String INVALID_CUSTOMER = "invalid customer";
+    public static final String INVALID_PRODUCT_IDS = "invalid product ids";
+    public static final String AMOUNT_PAID_SHOULD_NOT_BE_EMPTY = "amount paid shouldn't be empty";
+    public static final String CUSTOMER_NOT_PAID_FULL_AMOUNT = "customer not paid full amount";
 }
