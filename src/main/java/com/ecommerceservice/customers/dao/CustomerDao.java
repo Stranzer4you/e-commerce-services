@@ -22,5 +22,8 @@ public class CustomerDao {
     @Column(name = "\"Email\"")
     private String email;
 
+    @Column(name = "\"IsActive\"")
+    private Boolean isActive;
+
 
 }

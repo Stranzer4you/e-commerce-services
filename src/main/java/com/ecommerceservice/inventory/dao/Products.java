@@ -37,4 +37,8 @@ public class Products {
     @Column(name = "\"CreatedAt\"")
     private LocalDateTime createdAt;
 
+    @Column(name = "\"IsActive\"")
+    private Boolean isActive;
+
+
 }
