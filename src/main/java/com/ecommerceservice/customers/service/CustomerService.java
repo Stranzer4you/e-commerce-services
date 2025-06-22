@@ -10,4 +10,6 @@ public interface CustomerService {
     BaseResponse getAllCustomers();
 
     BaseResponse addCustomer( AddCustomerRequest addCustomerRequest) throws BadRequestException;
+
+    BaseResponse getCustomerById(Long customerId) throws BadRequestException;
 }

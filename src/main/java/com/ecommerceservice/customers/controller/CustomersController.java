@@ -28,4 +28,8 @@ public class CustomersController {
         return customerService.addCustomer(addCustomerRequest);
     }
 
+    @GetMapping("/customer/{customerId}")
+    public BaseResponse getCustomerById(@PathVariable("customerId") Long customerId) throws BadRequestException {
+        return customerService.getCustomerById(customerId);
+    }
 }
