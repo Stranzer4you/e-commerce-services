@@ -2,11 +2,15 @@ package com.ecommerceservice.inventory.controller;
 
 
 import com.ecommerceservice.config.BaseResponse;
+import com.ecommerceservice.exceptions.BadRequestException;
+import com.ecommerceservice.inventory.model.request.AddProductRequestDTO;
 import com.ecommerceservice.inventory.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/inventory")
@@ -18,6 +22,11 @@ public class InventoryController {
     @GetMapping("/all-products")
     public BaseResponse getAllProducts(){
         return  inventoryService.getAllProducts();
+    }
+
+    @PostMapping("/add-products")
+    public BaseResponse addProducts(@RequestBody @Valid  AddProductRequestDTO dto) throws BadRequestException {
+        return inventoryService.addProducts(dto);
     }
 
 

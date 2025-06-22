@@ -1,10 +1,13 @@
 package com.ecommerceservice.inventory.dao;
 
-import jakarta.persistence.*;
+
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -32,6 +35,6 @@ public class Products {
     private Boolean isAvailable;
 
     @Column(name = "\"CreatedAt\"")
-    private LocalTime createdAt;
+    private LocalDateTime createdAt;
 
 }

@@ -1,4 +1,4 @@
-package com.ecommerceservice.inventory.model;
+package com.ecommerceservice.inventory.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
