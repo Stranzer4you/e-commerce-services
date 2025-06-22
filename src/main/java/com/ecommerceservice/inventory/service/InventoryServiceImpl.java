@@ -11,6 +11,7 @@ import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.utility.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +44,15 @@ public class InventoryServiceImpl implements InventoryService{
         Products product = inventoryMapper.addProductDtoToProductDao(data);
         product.setCreatedAt(LocalDateTime.now());
         product = inventoryRepository.save(product);
+        return BaseResponseUtility.getBaseResponse(product);
+    }
+
+    @Override
+    public BaseResponse getByProductId(Long productId) throws BadRequestException {
+        Products product = inventoryRepository.findByIdAndIsActiveTrue(productId);
+        if(ObjectUtils.isEmpty(product)){
+            throw new BadRequestException(ExceptionConstants.INVALID_PRODUCT_ID);
+        }
         return BaseResponseUtility.getBaseResponse(product);
     }
 }

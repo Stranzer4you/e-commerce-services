@@ -10,4 +10,6 @@ public interface InventoryService {
     BaseResponse getAllProducts();
 
     BaseResponse addProducts( AddProductRequestDTO dto) throws BadRequestException;
+
+    BaseResponse getByProductId(Long productId) throws BadRequestException;
 }

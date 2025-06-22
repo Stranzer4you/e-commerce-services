@@ -24,4 +24,5 @@ public class ExceptionConstants {
     public static final String INVALID_PRODUCT_IDS = "invalid product ids";
     public static final String AMOUNT_PAID_SHOULD_NOT_BE_EMPTY = "amount paid shouldn't be empty";
     public static final String CUSTOMER_NOT_PAID_FULL_AMOUNT = "customer not paid full amount";
+    public static final String INVALID_PRODUCT_ID = "invalid product id";
 }

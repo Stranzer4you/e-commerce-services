@@ -29,5 +29,10 @@ public class InventoryController {
         return inventoryService.addProducts(dto);
     }
 
+    @GetMapping("/product/{productId}")
+    public BaseResponse getByProductId(@PathVariable("productId") Long productId) throws BadRequestException {
+        return  inventoryService.getByProductId(productId);
+    }
+
 
 }
