@@ -3,18 +3,19 @@ package com.ecommerceservice.inventory.model.request;
 
 import lombok.Data;
 
+import com.ecommerceservice.utility.ExceptionConstants;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 @Data
 public class AddProductRequestDTO {
-    @NotNull(message = "productName shouldn't be empty")
+    @NotNull(message = ExceptionConstants.PRODUCT_NAME_SHOULD_NOT_BE_EMPTY)
     private String productName;
-    @NotNull(message = "price shouldn't be empty")
-    @Positive(message = "price must be greater than 0")
+    @NotNull(message = ExceptionConstants.PRODUCT_PRICE_SHOULD_NOT_BE_EMPTY)
+    @Positive(message = ExceptionConstants.PRODUCT_PRICE_GREATER_ZERO)
     private Double price;
-    @Positive(message = "quantity must be greater than 0")
-    @NotNull(message = "quantity shouldn't be empty")
+    @Positive(message = ExceptionConstants.QUALITY_GREATER_ZERO)
+    @NotNull(message = ExceptionConstants.QUALITY_SHOULD_NOT_BE_EMPTY)
     private Integer quantity;
     private Boolean IsAvailable=true;
 }
