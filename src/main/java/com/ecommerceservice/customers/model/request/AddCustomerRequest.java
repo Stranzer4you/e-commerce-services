@@ -18,4 +18,6 @@ public class AddCustomerRequest {
     @NotEmpty(message = ExceptionConstants.CUSTOMER_EMAIL_SHOULD_NOT_BE_EMPTY)
     @Email(message = ExceptionConstants.INVALID_EMAIL_FORMAT)
     private String email;
+    @NotEmpty(message = ExceptionConstants.CUSTOMER_ADDRESS_SHOULD_NOT_BE_EMPTY)
+    private String address;
 }

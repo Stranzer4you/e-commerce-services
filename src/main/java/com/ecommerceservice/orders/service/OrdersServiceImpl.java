@@ -69,7 +69,7 @@ public class OrdersServiceImpl implements OrdersService {
         }
         OrdersDao ordersDao = new OrdersDao();
         ordersDao.setCreatedAt(LocalDateTime.now());
-        ordersDao.setStatus(CommonConstants.PROCESSING_STATUS_ID);
+        ordersDao.setStatus(dto.getStatus());
         ordersDao.setTotalAmount(dto.getTotalAmount());
         ordersDao.setCustomerId(dto.getCustomerId());
         List<OrdersDetailsDao> ordersDetailsDaoList = new ArrayList<>();
