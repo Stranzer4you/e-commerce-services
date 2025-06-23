@@ -17,6 +17,13 @@ public class BaseResponseUtility {
         response.setStatus(200);
         response.setResult(getResult());
         return  response;
+    }
+
+    public static BaseResponse getBaseResponse(){
+        BaseResponse response = new BaseResponse();
+        response.setStatus(200);
+        response.setResult(getResult());
+        return  response;
 
     }
 }

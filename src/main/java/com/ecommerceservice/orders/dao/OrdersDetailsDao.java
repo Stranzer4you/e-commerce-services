@@ -22,7 +22,7 @@ public class OrdersDetailsDao {
     private Long orderId;
 
     @Column(name = "\"ProductID\"")
-    private Double productId;
+    private Long productId;
 
     @Column(name = "\"Quantity\"")
     private Integer quantity;

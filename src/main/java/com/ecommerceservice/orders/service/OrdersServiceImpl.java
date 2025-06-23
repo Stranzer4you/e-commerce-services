@@ -10,13 +10,16 @@ import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.mapper.OrdersMapper;
+import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
 import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@Slf4j
 public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
@@ -43,6 +47,11 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public BaseResponse createOrder(CreateOrderRequestDto dto) throws BadRequestException {
         CustomerDao customerDao = customerRepository.findById(dto.getCustomerId()).orElseThrow(() -> new BadRequestException(ExceptionConstants.INVALID_CUSTOMER));
+        Double totalPaidAmount = dto.getTotalAmount();
+        Double sumOfEachProductPaidAmount = dto.getOrdersDetails().stream().mapToDouble(OrdersDetailRequestDto::getAmountPaid).sum();
+        if(!Objects.equals(totalPaidAmount,sumOfEachProductPaidAmount)){
+            throw new BadRequestException(ExceptionConstants.TOTAL_PAID_AMOUNT_NOT_MATCHING);
+        }
         List<Long> productIds = dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList();
         List<Products> products = inventoryRepository.findAllById(productIds);
         if (ObjectUtils.isEmpty(products) || products.size() != productIds.size()) {
@@ -54,7 +63,7 @@ public class OrdersServiceImpl implements OrdersService {
             Long productId = map.getKey();
             Double userPaidAmount = map.getValue();
             Double productPrice = productPricesMap.get(productId);
-            if (userPaidAmount < productPrice) {
+            if (!Objects.equals(userPaidAmount, productPrice)) {
                 throw new BadRequestException(ExceptionConstants.CUSTOMER_NOT_PAID_FULL_AMOUNT);
             }
         }
@@ -67,12 +76,38 @@ public class OrdersServiceImpl implements OrdersService {
         dto.getOrdersDetails().forEach(ordersDetailRequestDto -> {
             OrdersDetailsDao ordersDetailsDao = new OrdersDetailsDao();
             ordersDetailsDao.setAmountPaid(ordersDetailRequestDto.getAmountPaid());
-            ordersDetailsDao.setQuantity(ordersDetailsDao.getQuantity());
-            ordersDetailsDao.setProductId(ordersDetailsDao.getProductId());
+            ordersDetailsDao.setQuantity(ordersDetailRequestDto.getQuantity());
+            ordersDetailsDao.setProductId(ordersDetailRequestDto.getProductId());
             ordersDetailsDaoList.add(ordersDetailsDao);
         });
         ordersDao.setOrdersDetailsDaoList(ordersDetailsDaoList);
         ordersDao = ordersRepository.save(ordersDao);
+        OrdersDao finalOrdersDao = ordersDao;
+        ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
+            ordersDetailsDao.setOrderId(finalOrdersDao.getId());
+        });
         return BaseResponseUtility.getBaseResponse(ordersDao);
+    }
+
+    @Override
+    public BaseResponse getAllOrders(AllOrdersRequestDto dto) {
+        List<OrdersDao> ordersDaos;
+        if(!CollectionUtils.isEmpty(dto.getOrderStatus())){
+            ordersDaos = ordersRepository.findAllByStatusIn(dto.getOrderStatus());
+        }
+        else{
+            ordersDaos = ordersRepository.findAll();
+        }
+        return BaseResponseUtility.getBaseResponse(ordersDaos);
+    }
+
+    @Override
+    public BaseResponse getOrderById(Long orderId) {
+        Optional<OrdersDao> ordersDao = ordersRepository.findById(orderId);
+        if(ordersDao.isPresent()){
+            return BaseResponseUtility.getBaseResponse(ordersDao.get());
+        }
+        return  BaseResponseUtility.getBaseResponse();
+
     }
 }
