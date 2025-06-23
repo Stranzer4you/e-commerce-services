@@ -18,17 +18,17 @@ public class OrdersController {
     @Autowired
     private OrdersService ordersService;
 
-    @PostMapping("/create-order")
+    @PostMapping()
     public BaseResponse createOrder(@Valid @RequestBody CreateOrderRequestDto dto) throws BadRequestException {
         return ordersService.createOrder(dto);
     }
 
-    @GetMapping("/all-orders")
+    @GetMapping()
     public BaseResponse getAllOrders(@ModelAttribute AllOrdersRequestDto dto){
         return ordersService.getAllOrders(dto);
     }
 
-    @GetMapping("/order/{orderId}")
+    @GetMapping("/{orderId}")
     public BaseResponse getOrderById(@PathVariable("orderId") Long orderId){
         return  ordersService.getOrderById(orderId);
     }

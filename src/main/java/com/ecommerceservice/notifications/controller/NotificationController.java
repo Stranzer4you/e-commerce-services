@@ -18,12 +18,12 @@ public class NotificationController {
     private NotificationService notificationService;
 
 
-    @GetMapping("/all-notifications")
+    @GetMapping()
     public BaseResponse getAllOrders(@ModelAttribute AllNotificationsRequestDto dto){
         return notificationService.getAllNotifications(dto);
     }
 
-    @PostMapping("/create-notification")
+    @PostMapping()
     public BaseResponse createNotification(@RequestBody CreateNotificationRequestDto dto){
         return notificationService.createNotification(dto);
     }

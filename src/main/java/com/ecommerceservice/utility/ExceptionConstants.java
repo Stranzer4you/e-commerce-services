@@ -27,4 +27,6 @@ public class ExceptionConstants {
     public static final String INVALID_PRODUCT_ID = "invalid product id";
     public static final String TOTAL_PAID_AMOUNT_NOT_MATCHING = "total paid amount and sum of each product paid is not matching";
     public static final String INVALID_ORDER_STATUS_ID = "invalid order status id";
+    public static final String ORDER_ID_SHOULD_NOT_BE_EMPTY = "orderId shouldn't be empty";
+    public static final String INVALID_ORDER_ID = "invalid order id";
 }

@@ -19,17 +19,17 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    @GetMapping("/all-products")
+    @GetMapping()
     public BaseResponse getAllProducts(){
         return  inventoryService.getAllProducts();
     }
 
-    @PostMapping("/add-products")
+    @PostMapping()
     public BaseResponse addProducts(@RequestBody @Valid  AddProductRequestDTO dto) throws BadRequestException {
         return inventoryService.addProducts(dto);
     }
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/{productId}")
     public BaseResponse getByProductId(@PathVariable("productId") Long productId) throws BadRequestException {
         return  inventoryService.getByProductId(productId);
     }

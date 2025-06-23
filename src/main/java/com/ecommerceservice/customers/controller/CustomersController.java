@@ -18,17 +18,17 @@ public class CustomersController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("/all-customers")
+    @GetMapping()
     public BaseResponse getAllCustomers(){
         return customerService.getAllCustomers();
     }
 
-    @PostMapping("/add-customer")
+    @PostMapping()
     public BaseResponse addCustomer(@Valid @RequestBody AddCustomerRequest addCustomerRequest) throws BadRequestException {
         return customerService.addCustomer(addCustomerRequest);
     }
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping("{customerId}")
     public BaseResponse getCustomerById(@PathVariable("customerId") Long customerId) throws BadRequestException {
         return customerService.getCustomerById(customerId);
     }
