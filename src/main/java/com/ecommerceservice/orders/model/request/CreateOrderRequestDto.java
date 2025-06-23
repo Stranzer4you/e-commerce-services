@@ -18,7 +18,8 @@ public class CreateOrderRequestDto {
     @NotNull(message = ExceptionConstants.TOTAL_AMOUNT_SHOULD_NOT_BE_EMPTY)
     @Positive(message = ExceptionConstants.TOTAL_AMOUNT_GREATER_THAN_ZERO)
     private Double totalAmount;
-    private String status= CommonConstants.PROCESSING_STATUS;
+    @NotNull(message=ExceptionConstants.STATUS_SHOULD_NOT_BE_EMPTY)
+    private Integer status;
     @Valid
     @NotEmpty(message = ExceptionConstants.ORDERS_DETAILS_SHOULD_NOT_BE_EMPTY)
     private List<OrdersDetailRequestDto> ordersDetails;

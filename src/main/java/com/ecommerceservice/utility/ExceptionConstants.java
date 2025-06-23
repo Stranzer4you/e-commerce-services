@@ -29,4 +29,7 @@ public class ExceptionConstants {
     public static final String INVALID_ORDER_STATUS_ID = "invalid order status id";
     public static final String ORDER_ID_SHOULD_NOT_BE_EMPTY = "orderId shouldn't be empty";
     public static final String INVALID_ORDER_ID = "invalid order id";
+    public static final String ADDRESS_SHOULD_NOT_EMPTY = "customer address shouldn't be empty";
+    public static final String CUSTOMER_ADDRESS_SHOULD_NOT_BE_EMPTY = "customer address shouldn't be empty";
+    public static final String STATUS_SHOULD_NOT_BE_EMPTY = "status shouldn't be empty";
 }

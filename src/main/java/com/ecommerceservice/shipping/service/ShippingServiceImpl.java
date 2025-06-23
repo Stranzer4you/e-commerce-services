@@ -1,16 +1,15 @@
-package com.ecommerceservice.payments.service;
+package com.ecommerceservice.shipping.service;
 
 import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.orders.repository.OrdersRepository;
-import com.ecommerceservice.payments.dao.PaymentDao;
-import com.ecommerceservice.payments.mapper.PaymentMapper;
-import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
-import com.ecommerceservice.payments.model.request.makePaymentRequestDto;
-import com.ecommerceservice.payments.repository.PaymentRepository;
+import com.ecommerceservice.shipping.dao.ShippingDao;
+import com.ecommerceservice.shipping.mapper.ShippingMapper;
+import com.ecommerceservice.shipping.model.request.ShippingRequestDto;
+import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
+import com.ecommerceservice.shipping.repository.ShippingRepository;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +23,14 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class PaymentServiceImpl implements PaymentService {
+public class ShippingServiceImpl implements ShippingService {
 
 
     @Autowired
-    private PaymentMapper paymentMapper;
+    private ShippingMapper shippingMapper;
 
     @Autowired
-    private PaymentRepository paymentRepository;
+    private ShippingRepository shippingRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -41,19 +40,19 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public BaseResponse getAllPayments(AllPaymentRequestDto dto) {
-        List<PaymentDao> paymentDaos;
-        if(!CollectionUtils.isEmpty(dto.getPaymentStatus())){
-            paymentDaos = paymentRepository.findAllByStatusIn(dto.getPaymentStatus());
+    public BaseResponse getAllShippings(ShippingRequestDto dto) {
+        List<ShippingDao> shippingDaos;
+        if(!CollectionUtils.isEmpty(dto.getShippingStatus())){
+            shippingDaos = shippingRepository.findAllByStatusIn(dto.getShippingStatus());
         }
         else{
-            paymentDaos = paymentRepository.findAll();
+            shippingDaos = shippingRepository.findAll();
         }
-        return BaseResponseUtility.getBaseResponse(paymentDaos);
+        return BaseResponseUtility.getBaseResponse(shippingDaos);
     }
 
     @Override
-    public BaseResponse makePayment(makePaymentRequestDto dto) throws BadRequestException {
+    public BaseResponse createShipping(CreateShippingRequestDto dto) throws BadRequestException {
         Boolean isCustomerExists = customerRepository.existsById(dto.getCustomerId());
         if(Boolean.FALSE.equals(isCustomerExists)){
             throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);
@@ -62,9 +61,9 @@ public class PaymentServiceImpl implements PaymentService {
         if(Boolean.FALSE.equals(isOrderExists)){
             throw new BadRequestException(ExceptionConstants.INVALID_ORDER_ID);
         }
-        PaymentDao paymentDao = paymentMapper.paymetDtoToPaymentDao(dto);
-        paymentDao.setPaymentTime(LocalDateTime.now());
-        paymentDao = paymentRepository.save(paymentDao);
-        return BaseResponseUtility.getBaseResponse(paymentDao);
+        ShippingDao shippingDao = shippingMapper.shippingDtoToShippingDao(dto);
+        shippingDao.setShippedAt(LocalDateTime.now());
+        shippingDao = shippingRepository.save(shippingDao);
+        return BaseResponseUtility.getBaseResponse(shippingDao);
     }
 }
