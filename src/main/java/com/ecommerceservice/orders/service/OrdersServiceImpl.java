@@ -16,6 +16,8 @@ import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
 import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersRepository;
+import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
+import com.ecommerceservice.payments.service.PaymentServiceImpl;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private NotificationServiceImpl notificationService;
+
+    @Autowired
+    private PaymentServiceImpl paymentService;
 
 
 
@@ -111,8 +116,14 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setStatus(PROCESSING_STATUS_ID);
             notificationRequest.setMessage("your order is being processed");
             notificationRequest.setCustomerId(dto.getCustomerId());
-            notificationRequest.setOrderId(finalOrdersDao.getId());
+            notificationRequest.setOrderId(ordersDao.getId());
             notificationService.sendBulkNotifications(notificationRequest);
+           // make payment
+            MakePaymentRequestDto makePaymentRequestDto = new MakePaymentRequestDto();
+            makePaymentRequestDto.setAmount(dto.getTotalAmount());
+            makePaymentRequestDto.setOrderId(ordersDao.getId());
+            makePaymentRequestDto.setCustomerId(dto.getCustomerId());
+            paymentService.makePayment(makePaymentRequestDto);
         }
 
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {

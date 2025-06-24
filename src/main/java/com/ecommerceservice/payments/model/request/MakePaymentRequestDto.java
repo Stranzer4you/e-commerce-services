@@ -4,10 +4,9 @@ import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Data
-public class makePaymentRequestDto {
+public class MakePaymentRequestDto {
     @NotNull(message = ExceptionConstants.ORDER_ID_SHOULD_NOT_BE_EMPTY)
     private Long orderId;
     @NotNull(message = ExceptionConstants.CUSTOMER_ID_SHOULD_NOT_BE_EMPTY)
