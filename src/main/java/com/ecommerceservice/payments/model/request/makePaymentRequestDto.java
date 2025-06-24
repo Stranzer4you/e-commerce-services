@@ -14,6 +14,4 @@ public class makePaymentRequestDto {
     private Long customerId;
     @NotNull(message = ExceptionConstants.AMOUNT_PAID_SHOULD_NOT_BE_EMPTY)
     private Double amount;
-    @NotNull(message = ExceptionConstants.STATUS_SHOULD_NOT_BE_EMPTY)
-    private Integer status;
 }
