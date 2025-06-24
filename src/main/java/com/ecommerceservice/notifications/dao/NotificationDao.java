@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "\"Notification\"")
@@ -41,7 +40,7 @@ public class NotificationDao {
     private String error;
 
     @Column(name = "\"NotifyTime\"")
-    private LocalDateTime createdAt;
+    private LocalDateTime notifyTime;
 
     @Column(name = "\"NotificationModuleID\"")
     private Integer notificationModuleId;

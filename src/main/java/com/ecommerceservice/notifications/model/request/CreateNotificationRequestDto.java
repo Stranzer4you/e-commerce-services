@@ -13,4 +13,5 @@ public class CreateNotificationRequestDto {
     private String message;
     private String error;
     private LocalDateTime createdAt;
+    private Integer notificationModuleId;
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/notifications")
@@ -26,6 +27,12 @@ public class NotificationController {
     @PostMapping()
     public BaseResponse createNotification(@RequestBody CreateNotificationRequestDto dto){
         return notificationService.createNotification(dto);
+    }
+
+    @PostMapping("/bulk")
+    public BaseResponse createdBulkNotifications(@RequestBody List<CreateNotificationRequestDto> dtoList){
+        return  notificationService.createBulkNotifications(dtoList);
+
     }
 
 }
