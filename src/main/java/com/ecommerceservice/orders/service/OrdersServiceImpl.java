@@ -8,6 +8,8 @@ import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Products;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.dao.NotificationDao;
+import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
+import com.ecommerceservice.notifications.service.NotificationService;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.mapper.OrdersMapper;
@@ -29,6 +31,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.ecommerceservice.utility.CommonConstants.*;
+
 
 @Service
 @Slf4j
@@ -45,6 +49,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private OrdersMapper ordersMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
 
@@ -100,9 +107,24 @@ public class OrdersServiceImpl implements OrdersService {
         ordersDao.setOrdersDetailsDaoList(ordersDetailsDaoList);
         ordersDao = ordersRepository.save(ordersDao);
         // send notification upon order creating
-
-
         OrdersDao finalOrdersDao = ordersDao;
+        if (!ObjectUtils.isEmpty(ordersDao)) {
+            List<CreateNotificationRequestDto> notifications = new ArrayList<>();
+            notificationTypeIds.forEach(notification -> {
+                CreateNotificationRequestDto dao = new CreateNotificationRequestDto();
+                dao.setOrderId(finalOrdersDao.getId());
+                dao.setStatus(PROCESSING_STATUS_ID);
+                dao.setCustomerId(dto.getCustomerId());
+                dao.setMessage("your order is being processed");
+                dao.setNotificationModuleId(ORDER_MODULE_ID);
+                dao.setNotifyTime(LocalDateTime.now());
+                notifications.add(dao);
+            });
+            if(!CollectionUtils.isEmpty(notifications)){
+                notificationService.createBulkNotifications(notifications);
+            }
+        }
+
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
             ordersDetailsDao.setOrderId(finalOrdersDao.getId());
         });

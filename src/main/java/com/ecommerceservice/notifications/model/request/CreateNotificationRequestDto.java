@@ -12,7 +12,7 @@ public class CreateNotificationRequestDto {
     private Integer status;
     private String message;
     private String error;
-    private LocalDateTime createdAt;
+    private LocalDateTime notifyTime;
     private Integer notificationModuleId;
 }
 
