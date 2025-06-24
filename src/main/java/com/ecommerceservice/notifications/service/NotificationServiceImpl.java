@@ -70,6 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
             dto.setMessage(bulkNotificationRequest.getMessage());
             dto.setNotificationModuleId(bulkNotificationRequest.getNotificationModuleId());
             dto.setNotifyTime(LocalDateTime.now());
+            dto.setNotificationType(type);
             notifications.add(dto);
         });
         if(!CollectionUtils.isEmpty(notifications)){

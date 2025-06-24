@@ -7,9 +7,8 @@ import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Products;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
-import com.ecommerceservice.notifications.dao.NotificationDao;
-import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
-import com.ecommerceservice.notifications.service.NotificationService;
+import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.mapper.OrdersMapper;
@@ -19,14 +18,12 @@ import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,7 +48,7 @@ public class OrdersServiceImpl implements OrdersService {
     private OrdersMapper ordersMapper;
 
     @Autowired
-    private NotificationService notificationService;
+    private NotificationServiceImpl notificationService;
 
 
 
@@ -109,20 +106,13 @@ public class OrdersServiceImpl implements OrdersService {
         // send notification upon order creating
         OrdersDao finalOrdersDao = ordersDao;
         if (!ObjectUtils.isEmpty(ordersDao)) {
-            List<CreateNotificationRequestDto> notifications = new ArrayList<>();
-            notificationTypeIds.forEach(notification -> {
-                CreateNotificationRequestDto dao = new CreateNotificationRequestDto();
-                dao.setOrderId(finalOrdersDao.getId());
-                dao.setStatus(PROCESSING_STATUS_ID);
-                dao.setCustomerId(dto.getCustomerId());
-                dao.setMessage("your order is being processed");
-                dao.setNotificationModuleId(ORDER_MODULE_ID);
-                dao.setNotifyTime(LocalDateTime.now());
-                notifications.add(dao);
-            });
-            if(!CollectionUtils.isEmpty(notifications)){
-                notificationService.createBulkNotifications(notifications);
-            }
+            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
+            notificationRequest.setStatus(PROCESSING_STATUS_ID);
+            notificationRequest.setMessage("your order is being processed");
+            notificationRequest.setCustomerId(dto.getCustomerId());
+            notificationRequest.setOrderId(finalOrdersDao.getId());
+            notificationService.sendBulkNotifications(notificationRequest);
         }
 
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
