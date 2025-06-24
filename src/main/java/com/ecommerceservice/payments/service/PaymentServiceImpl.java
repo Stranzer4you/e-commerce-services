@@ -4,16 +4,14 @@ import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
-import com.ecommerceservice.payments.model.request.makePaymentRequestDto;
+import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.repository.PaymentRepository;
-import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +59,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public BaseResponse makePayment(makePaymentRequestDto dto) throws BadRequestException {
+    public BaseResponse makePayment(MakePaymentRequestDto dto) throws BadRequestException {
         Boolean isCustomerExists = customerRepository.existsById(dto.getCustomerId());
         if(Boolean.FALSE.equals(isCustomerExists)){
             throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);

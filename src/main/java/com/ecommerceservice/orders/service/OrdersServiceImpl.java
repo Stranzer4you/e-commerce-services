@@ -16,6 +16,9 @@ import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
 import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersRepository;
+import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
+import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
+import com.ecommerceservice.payments.service.PaymentServiceImpl;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private NotificationServiceImpl notificationService;
+
+    @Autowired
+    private PaymentServiceImpl paymentService;
 
 
 
@@ -111,8 +117,14 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setStatus(PROCESSING_STATUS_ID);
             notificationRequest.setMessage("your order is being processed");
             notificationRequest.setCustomerId(dto.getCustomerId());
-            notificationRequest.setOrderId(finalOrdersDao.getId());
+            notificationRequest.setOrderId(ordersDao.getId());
             notificationService.sendBulkNotifications(notificationRequest);
+           // make payment
+            MakePaymentRequestDto makePaymentRequestDto = new MakePaymentRequestDto();
+            makePaymentRequestDto.setAmount(dto.getTotalAmount());
+            makePaymentRequestDto.setOrderId(ordersDao.getId());
+            makePaymentRequestDto.setCustomerId(dto.getCustomerId());
+            paymentService.makePayment(makePaymentRequestDto);
         }
 
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
@@ -141,6 +153,24 @@ public class OrdersServiceImpl implements OrdersService {
         }
         return  BaseResponseUtility.getBaseResponse();
 
+    }
+
+    @Override
+    public BaseResponse updateOrderStatus(UpdateOrderStatusDto dto) throws BadRequestException {
+        OrdersDao ordersDao  = ordersRepository.findById(dto.getOrderId()).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_ORDER_ID));
+        ordersDao.setStatus(dto.getStatus());
+        ordersDao = ordersRepository.save(ordersDao);
+        // send notifications
+        if(!ObjectUtils.isEmpty(ordersDao)) {
+            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
+            notificationRequest.setStatus(dto.getStatus());
+            notificationRequest.setMessage("your order is successfully processed");
+            notificationRequest.setCustomerId(ordersDao.getCustomerId());
+            notificationRequest.setOrderId(ordersDao.getId());
+            notificationService.sendBulkNotifications(notificationRequest);
+        }
+        return BaseResponseUtility.getBaseResponse(ordersDao);
     }
 
 }
