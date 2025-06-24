@@ -1,5 +1,7 @@
 package com.ecommerceservice.utility;
 
+import java.util.List;
+
 public class CommonConstants {
     public static final String PROCESSING_STATUS="Processing";
     public static final String SUCCESS_STATUS="Success";
@@ -14,5 +16,13 @@ public class CommonConstants {
     public static final Integer PENDING_STATUS_ID=4;
     public static final Integer DELIVERED_STATUS_ID=6;
     public static final Integer SHIPPED_STATUS_ID=5;
+
+
+    public static final Integer ORDER_MODULE_ID=1;
+    public static final Integer PAYMENT_MODULE_ID=2;
+    public static final Integer SHIPPING_MODULE_ID=3;
+    public static final Integer INVENTORY_MODULE_ID=4;
+
+    public static final List<Integer> notificationTypeIds = List.of(1,2,3);
 
 }
