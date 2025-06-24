@@ -4,6 +4,7 @@ import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
+import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 
 import javax.validation.Valid;
 
@@ -14,4 +15,6 @@ public interface OrdersService {
     BaseResponse getAllOrders(AllOrdersRequestDto dto);
 
     BaseResponse getOrderById(Long orderId);
+
+    BaseResponse updateOrderStatus(UpdateOrderStatusDto dto) throws BadRequestException;
 }
