@@ -7,6 +7,7 @@ import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Products;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
+import com.ecommerceservice.notifications.dao.NotificationDao;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.mapper.OrdersMapper;
@@ -16,12 +17,14 @@ import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.utility.CommonConstants;
 import com.ecommerceservice.utility.ExceptionConstants;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +47,7 @@ public class OrdersServiceImpl implements OrdersService {
     private OrdersMapper ordersMapper;
 
 
+
     @Override
     public BaseResponse createOrder(CreateOrderRequestDto dto) throws BadRequestException {
         CustomerDao customerDao = customerRepository.findById(dto.getCustomerId()).orElseThrow(() -> new BadRequestException(ExceptionConstants.INVALID_CUSTOMER));
@@ -57,6 +61,19 @@ public class OrdersServiceImpl implements OrdersService {
         if (ObjectUtils.isEmpty(products) || products.size() != productIds.size()) {
             throw new BadRequestException(ExceptionConstants.INVALID_PRODUCT_IDS);
         }
+        // check inventory of each product
+        Map<Long,Integer> inventoryProductIdQuantityMap = products.stream().collect(Collectors.toMap(Products::getId,Products::getQuantity));
+        Map<Long,Integer> customerProductIdQuantityMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId,OrdersDetailRequestDto::getQuantity));
+        for(Map.Entry<Long,Integer> map : inventoryProductIdQuantityMap.entrySet()){
+            Long productId = map.getKey();
+            Integer quantity = map.getValue();
+            Integer requestedQuantity = customerProductIdQuantityMap.get(productId);
+            if(requestedQuantity > quantity){
+                throw new BadRequestException(ExceptionConstants.PRODUCT_OUT_OF_STOCK);
+            }
+        }
+
+        //  check if amount paid for each object is proper
         Map<Long, Double> productPricesMap = products.stream().collect(Collectors.toMap(Products::getId, Products::getPrice));
         Map<Long, Double> customerPaidMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId, OrdersDetailRequestDto::getAmountPaid));
         for (Map.Entry<Long, Double> map : customerPaidMap.entrySet()) {
@@ -69,7 +86,7 @@ public class OrdersServiceImpl implements OrdersService {
         }
         OrdersDao ordersDao = new OrdersDao();
         ordersDao.setCreatedAt(LocalDateTime.now());
-        ordersDao.setStatus(dto.getStatus());
+        ordersDao.setStatus(CommonConstants.PROCESSING_STATUS_ID);
         ordersDao.setTotalAmount(dto.getTotalAmount());
         ordersDao.setCustomerId(dto.getCustomerId());
         List<OrdersDetailsDao> ordersDetailsDaoList = new ArrayList<>();
@@ -82,6 +99,9 @@ public class OrdersServiceImpl implements OrdersService {
         });
         ordersDao.setOrdersDetailsDaoList(ordersDetailsDaoList);
         ordersDao = ordersRepository.save(ordersDao);
+        // send notification upon order creating
+
+
         OrdersDao finalOrdersDao = ordersDao;
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
             ordersDetailsDao.setOrderId(finalOrdersDao.getId());
@@ -110,4 +130,5 @@ public class OrdersServiceImpl implements OrdersService {
         return  BaseResponseUtility.getBaseResponse();
 
     }
+
 }
