@@ -5,6 +5,8 @@ import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
+import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
@@ -17,9 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.ecommerceservice.utility.CommonConstants.*;
 
 
 @Service
@@ -38,6 +43,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private NotificationServiceImpl notificationService;
 
 
     @Override
@@ -64,7 +72,17 @@ public class PaymentServiceImpl implements PaymentService {
         }
         PaymentDao paymentDao = paymentMapper.paymetDtoToPaymentDao(dto);
         paymentDao.setPaymentTime(LocalDateTime.now());
+        paymentDao.setStatus(PENDING_STATUS_ID);
         paymentDao = paymentRepository.save(paymentDao);
+        if(!ObjectUtils.isEmpty(paymentDao)){
+            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            notificationRequest.setNotificationModuleId(PAYMENT_MODULE_ID);
+            notificationRequest.setStatus(PROCESSING_STATUS_ID);
+            notificationRequest.setMessage("your payment is in pending");
+            notificationRequest.setCustomerId(dto.getCustomerId());
+            notificationRequest.setOrderId(paymentDao.getId());
+            notificationService.sendBulkNotifications(notificationRequest);
+        }
         return BaseResponseUtility.getBaseResponse(paymentDao);
     }
 }
