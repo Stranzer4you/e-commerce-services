@@ -43,5 +43,8 @@ public class NotificationDao {
     @Column(name = "\"NotifyTime\"")
     private LocalDateTime createdAt;
 
+    @Column(name = "\"NotificationModuleID\"")
+    private Integer notificationModuleId;
+
 
 }
