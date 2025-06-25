@@ -11,9 +11,6 @@ import java.util.Optional;
 @Repository
 public interface NotificationMessageRepository extends JpaRepository<NotificationMessage, Long> {
 
-    @Query(value = """
-            select "Template" from "NotificationMessage"
-            where "NotificationModuleID" =:moduleId and "Status"=:statusId and "NotificationType"=:notificationType
-            """,nativeQuery = true)
-    String  findByNotificationModuleIdAndStatusAndNotificationType(@Param("moduleId") Integer moduleId,@Param("statusId") Integer statusId, @Param("notificationType") Integer notificationType);
+
+    NotificationMessage findByNotificationModuleIdAndStatusAndNotificationType( Integer moduleId, Integer statusId, Integer notificationType);
 }

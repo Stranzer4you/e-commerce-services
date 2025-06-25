@@ -115,9 +115,10 @@ public class OrdersServiceImpl implements OrdersService {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
             notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
             notificationRequest.setStatus(PROCESSING_STATUS_ID);
-            notificationRequest.setMessage("your order is being processed");
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
+            notificationRequest.setProductIds(dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList());
+            notificationRequest.setAmount(dto.getTotalAmount());
             notificationService.sendBulkNotifications(notificationRequest);
            // make payment
             MakePaymentRequestDto makePaymentRequestDto = new MakePaymentRequestDto();
@@ -165,7 +166,6 @@ public class OrdersServiceImpl implements OrdersService {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
             notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
             notificationRequest.setStatus(dto.getStatus());
-            notificationRequest.setMessage("your order is successfully processed");
             notificationRequest.setCustomerId(ordersDao.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
             notificationService.sendBulkNotifications(notificationRequest);

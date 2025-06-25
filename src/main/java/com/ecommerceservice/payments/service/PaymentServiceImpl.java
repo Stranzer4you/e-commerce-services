@@ -76,7 +76,6 @@ public class PaymentServiceImpl implements PaymentService {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
             notificationRequest.setNotificationModuleId(PAYMENT_MODULE_ID);
             notificationRequest.setStatus(PROCESSING_STATUS_ID);
-            notificationRequest.setMessage("your payment is in pending");
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(paymentDao.getId());
             notificationService.sendBulkNotifications(notificationRequest);

@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "NotificationMessage")
+@Table(name = "\"NotificationMessage\"")
 @Data
 public class NotificationMessage {
 
@@ -21,7 +21,7 @@ public class NotificationMessage {
     private Integer status;
 
     @Column(name = "\"NotificationType\"")
-    private String notificationType;
+    private Integer notificationType;
 
     @Column(name = "\"Template\"")
     private String template;
