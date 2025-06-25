@@ -4,7 +4,6 @@ import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
-import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Products;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.dao.NotificationDao;
@@ -14,7 +13,6 @@ import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationRepository;
-import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.ecommerceservice.utility.CommonConstants.*;
 
@@ -83,7 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
             createNotificationRequestDto.setOrderId(dto.getOrderId());
             createNotificationRequestDto.setStatus(dto.getStatus());
             createNotificationRequestDto.setCustomerId(dto.getCustomerId());
-            TemplatePlaceHoldersDto templatePlaceHoldersDto = generatePlaceHoldersDto(dto.getCustomerId(),dto.getProductId());
+            TemplatePlaceHoldersDto templatePlaceHoldersDto = generatePlaceHoldersDto(dto.getCustomerId(),dto.getProductIds());
             createNotificationRequestDto.setMessage(notificationMessageService.generateMessage(dto.getNotificationModuleId(), dto.getStatus(),type,templatePlaceHoldersDto));
             createNotificationRequestDto.setNotificationModuleId(dto.getNotificationModuleId());
             createNotificationRequestDto.setNotifyTime(LocalDateTime.now());
@@ -95,11 +94,15 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    public TemplatePlaceHoldersDto generatePlaceHoldersDto(Long customerId,Long productId){
+    public TemplatePlaceHoldersDto generatePlaceHoldersDto(Long customerId,List<Long> productIds){
         CustomerDao customerDao = customerRepository.findByIdAndIsActiveTrue(customerId);
-        Products products  = inventoryRepository.findByIdAndIsActiveTrue(productId);
+        List<Products> products  = inventoryRepository.findAllByIdInAndIsActiveTrue(productIds);
+        String productsNames = products.stream().map(Products::getProductName).collect(Collectors.joining(","));
+        if(products.size() >3){
+            productsNames =  products.subList(0,3).stream().map(Products::getProductName).collect(Collectors.joining(", ")) + " + others ";
+        }
         TemplatePlaceHoldersDto dto=new TemplatePlaceHoldersDto();
-        dto.setProductName(products.getProductName());
+        dto.setProductName(productsNames);
         dto.setCustomerName(customerDao.getCustomerName());
         return dto;
     }

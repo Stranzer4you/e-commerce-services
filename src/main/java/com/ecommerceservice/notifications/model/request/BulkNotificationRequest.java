@@ -2,15 +2,14 @@ package com.ecommerceservice.notifications.model.request;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class BulkNotificationRequest {
     private Long customerId;
     private Long orderId;
     private Integer status;
-    private String message;
     private Integer notificationModuleId;
     private Double amount;
-    private Long productId;
+    private List<Long> productIds;
 }

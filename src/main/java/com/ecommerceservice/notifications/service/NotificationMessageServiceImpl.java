@@ -4,22 +4,25 @@ import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.notifications.dao.NotificationMessage;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationMessageRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class NotificationMessageServiceImpl {
     @Autowired
     private  NotificationMessageRepository notificationMessageRepository;
 
     public String generateMessage(Integer moduleId, Integer statusId, Integer notificationType,TemplatePlaceHoldersDto dto) {
-        String message = notificationMessageRepository
+       NotificationMessage notificationMessage = notificationMessageRepository
                 .findByNotificationModuleIdAndStatusAndNotificationType(moduleId, statusId, notificationType);
         Map<String,String> placeHolders = buildPlaceholders(moduleId,dto);
-        return replacePlaceholders(message, placeHolders);
+        return replacePlaceholders(notificationMessage.getTemplate(), placeHolders);
     }
 
     private String replacePlaceholders(String template, Map<String, String> values) {
