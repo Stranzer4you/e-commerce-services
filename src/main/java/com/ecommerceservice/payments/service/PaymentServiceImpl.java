@@ -9,7 +9,6 @@ import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.repository.OrdersDetailsRepository;
 import com.ecommerceservice.orders.repository.OrdersRepository;
-import com.ecommerceservice.orders.service.OrdersServiceImpl;
 import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
@@ -87,7 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
             notificationRequest.setAmount(dto.getAmount());
             List<Long> productIds = ordersDetailsRepository.findAllByOrderId(dto.getOrderId()).stream().map(OrdersDetailsDao::getProductId).toList();
             notificationRequest.setProductIds(productIds);
-            notificationService.sendBulkNotifications(notificationRequest);
+            notificationService.sendSmsEmailPushNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(paymentDao);
     }

@@ -75,7 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
         return BaseResponseUtility.getBaseResponse(notificationDaos);
     }
 
-    public void sendBulkNotifications(BulkNotificationRequest dto){
+    public void sendSmsEmailPushNotifications(BulkNotificationRequest dto){
         List<CreateNotificationRequestDto> notifications = new ArrayList<>();
         notificationTypeIds.forEach(type->{
             CreateNotificationRequestDto createNotificationRequestDto = new CreateNotificationRequestDto();

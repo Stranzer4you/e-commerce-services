@@ -123,7 +123,7 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList());
             notificationRequest.setAmount(dto.getTotalAmount());
-            notificationService.sendBulkNotifications(notificationRequest);
+            notificationService.sendSmsEmailPushNotifications(notificationRequest);
            // make payment
             MakePaymentRequestDto makePaymentRequestDto = new MakePaymentRequestDto();
             makePaymentRequestDto.setAmount(dto.getTotalAmount());
@@ -172,7 +172,7 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setStatus(dto.getStatus());
             notificationRequest.setCustomerId(ordersDao.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
-            notificationService.sendBulkNotifications(notificationRequest);
+            notificationService.sendSmsEmailPushNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(ordersDao);
     }
