@@ -2,12 +2,19 @@ package com.ecommerceservice.notifications.service;
 
 import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.customers.dao.CustomerDao;
+import com.ecommerceservice.customers.repository.CustomerRepository;
+import com.ecommerceservice.exceptions.BadRequestException;
+import com.ecommerceservice.inventory.dao.Products;
+import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.dao.NotificationDao;
 import com.ecommerceservice.notifications.mapper.NotificationMapper;
 import com.ecommerceservice.notifications.model.request.AllNotificationsRequestDto;
 import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
+import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationRepository;
+import com.ecommerceservice.utility.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +36,15 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
+
+    @Autowired
+    private NotificationMessageServiceImpl notificationMessageService;
 
 
     @Override
@@ -53,28 +69,38 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public   BaseResponse createBulkNotifications(List<CreateNotificationRequestDto> dtoList) {
+    public BaseResponse createBulkNotifications(List<CreateNotificationRequestDto> dtoList) {
         List<NotificationDao> notificationDaos = notificationMapper.notificationDtoListToDaoList(dtoList);
         notificationDaos.forEach(x->x.setNotifyTime(LocalDateTime.now()));
         notificationDaos = notificationRepository.saveAll(notificationDaos);
         return BaseResponseUtility.getBaseResponse(notificationDaos);
     }
 
-    public void sendBulkNotifications(BulkNotificationRequest bulkNotificationRequest){
+    public void sendBulkNotifications(BulkNotificationRequest dto){
         List<CreateNotificationRequestDto> notifications = new ArrayList<>();
         notificationTypeIds.forEach(type->{
-            CreateNotificationRequestDto dto = new CreateNotificationRequestDto();
-            dto.setOrderId(bulkNotificationRequest.getOrderId());
-            dto.setStatus(bulkNotificationRequest.getStatus());
-            dto.setCustomerId(bulkNotificationRequest.getCustomerId());
-            dto.setMessage(bulkNotificationRequest.getMessage());
-            dto.setNotificationModuleId(bulkNotificationRequest.getNotificationModuleId());
-            dto.setNotifyTime(LocalDateTime.now());
-            dto.setNotificationType(type);
-            notifications.add(dto);
+            CreateNotificationRequestDto createNotificationRequestDto = new CreateNotificationRequestDto();
+            createNotificationRequestDto.setOrderId(dto.getOrderId());
+            createNotificationRequestDto.setStatus(dto.getStatus());
+            createNotificationRequestDto.setCustomerId(dto.getCustomerId());
+            TemplatePlaceHoldersDto templatePlaceHoldersDto = generatePlaceHoldersDto(dto.getCustomerId(),dto.getProductId());
+            createNotificationRequestDto.setMessage(notificationMessageService.generateMessage(dto.getNotificationModuleId(), dto.getStatus(),type,templatePlaceHoldersDto));
+            createNotificationRequestDto.setNotificationModuleId(dto.getNotificationModuleId());
+            createNotificationRequestDto.setNotifyTime(LocalDateTime.now());
+            createNotificationRequestDto.setNotificationType(type);
+            notifications.add(createNotificationRequestDto);
         });
         if(!CollectionUtils.isEmpty(notifications)){
             this.createBulkNotifications(notifications);
         }
+    }
+
+    public TemplatePlaceHoldersDto generatePlaceHoldersDto(Long customerId,Long productId){
+        CustomerDao customerDao = customerRepository.findByIdAndIsActiveTrue(customerId);
+        Products products  = inventoryRepository.findByIdAndIsActiveTrue(productId);
+        TemplatePlaceHoldersDto dto=new TemplatePlaceHoldersDto();
+        dto.setProductName(products.getProductName());
+        dto.setCustomerName(customerDao.getCustomerName());
+        return dto;
     }
 }
