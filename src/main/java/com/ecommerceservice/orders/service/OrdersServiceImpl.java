@@ -15,6 +15,7 @@ import com.ecommerceservice.orders.mapper.OrdersMapper;
 import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
 import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
+import com.ecommerceservice.orders.repository.OrdersDetailsRepository;
 import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
@@ -55,6 +56,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private PaymentServiceImpl paymentService;
+
+    @Autowired
+    private OrdersDetailsRepository ordersDetailsRepository;
 
 
 
@@ -171,6 +175,11 @@ public class OrdersServiceImpl implements OrdersService {
             notificationService.sendBulkNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(ordersDao);
+    }
+
+
+    public List<OrdersDetailsDao> getOrderDetailsByOrderId(Long orderId){
+        return ordersDetailsRepository.findAllByOrderId(orderId);
     }
 
 }
