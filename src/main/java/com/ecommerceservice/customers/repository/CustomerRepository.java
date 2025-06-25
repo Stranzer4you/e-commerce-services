@@ -2,6 +2,8 @@ package com.ecommerceservice.customers.repository;
 
 import com.ecommerceservice.customers.dao.CustomerDao;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.Email;
@@ -14,4 +16,6 @@ public interface CustomerRepository extends JpaRepository<CustomerDao , Long> {
     Boolean existsByPhoneNumber(String phoneNumber);
 
     CustomerDao findByIdAndIsActiveTrue(Long customerId);
+
+
 }

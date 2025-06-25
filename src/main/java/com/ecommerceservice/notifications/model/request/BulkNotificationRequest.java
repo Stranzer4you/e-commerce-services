@@ -11,4 +11,6 @@ public class BulkNotificationRequest {
     private Integer status;
     private String message;
     private Integer notificationModuleId;
+    private Double amount;
+    private Long productId;
 }
