@@ -19,7 +19,7 @@ public class NotificationMessageServiceImpl {
     private  NotificationMessageRepository notificationMessageRepository;
 
     public String generateMessage(Integer moduleId, Integer statusId, Integer notificationType,TemplatePlaceHoldersDto dto) {
-       NotificationMessage notificationMessage = notificationMessageRepository
+        NotificationMessage notificationMessage = notificationMessageRepository
                 .findByNotificationModuleIdAndStatusAndNotificationType(moduleId, statusId, notificationType);
         Map<String,String> placeHolders = buildPlaceholders(moduleId,dto);
         return replacePlaceholders(notificationMessage.getTemplate(), placeHolders);

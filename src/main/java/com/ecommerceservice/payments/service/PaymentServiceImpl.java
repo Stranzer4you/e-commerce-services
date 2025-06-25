@@ -6,7 +6,10 @@ import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
+import com.ecommerceservice.orders.dao.OrdersDetailsDao;
+import com.ecommerceservice.orders.repository.OrdersDetailsRepository;
 import com.ecommerceservice.orders.repository.OrdersRepository;
+import com.ecommerceservice.orders.service.OrdersServiceImpl;
 import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
@@ -45,6 +48,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private NotificationServiceImpl notificationService;
 
+    @Autowired
+    private OrdersDetailsRepository ordersDetailsRepository;
+
 
     @Override
     public BaseResponse getAllPayments(AllPaymentRequestDto dto) {
@@ -77,7 +83,10 @@ public class PaymentServiceImpl implements PaymentService {
             notificationRequest.setNotificationModuleId(PAYMENT_MODULE_ID);
             notificationRequest.setStatus(PROCESSING_STATUS_ID);
             notificationRequest.setCustomerId(dto.getCustomerId());
-            notificationRequest.setOrderId(paymentDao.getId());
+            notificationRequest.setOrderId(dto.getOrderId());
+            notificationRequest.setAmount(dto.getAmount());
+            List<Long> productIds = ordersDetailsRepository.findAllByOrderId(dto.getOrderId()).stream().map(OrdersDetailsDao::getProductId).toList();
+            notificationRequest.setProductIds(productIds);
             notificationService.sendBulkNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(paymentDao);

@@ -83,6 +83,9 @@ public class NotificationServiceImpl implements NotificationService {
             createNotificationRequestDto.setStatus(dto.getStatus());
             createNotificationRequestDto.setCustomerId(dto.getCustomerId());
             TemplatePlaceHoldersDto templatePlaceHoldersDto = generatePlaceHoldersDto(dto.getCustomerId(),dto.getProductIds());
+            if(dto.getNotificationModuleId().equals(PAYMENT_MODULE_ID)){
+                templatePlaceHoldersDto.setAmount(dto.getAmount());
+            }
             createNotificationRequestDto.setMessage(notificationMessageService.generateMessage(dto.getNotificationModuleId(), dto.getStatus(),type,templatePlaceHoldersDto));
             createNotificationRequestDto.setNotificationModuleId(dto.getNotificationModuleId());
             createNotificationRequestDto.setNotifyTime(LocalDateTime.now());
