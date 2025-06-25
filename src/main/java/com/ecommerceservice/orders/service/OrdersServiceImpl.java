@@ -172,6 +172,8 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setStatus(dto.getStatus());
             notificationRequest.setCustomerId(ordersDao.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
+            notificationRequest.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
+            notificationRequest.setAmount(ordersDao.getTotalAmount());
             notificationService.sendSmsEmailPushNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(ordersDao);
