@@ -8,7 +8,7 @@ import com.ecommerceservice.customers.model.request.AddCustomerRequest;
 import com.ecommerceservice.customers.model.response.CustomerResponse;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;

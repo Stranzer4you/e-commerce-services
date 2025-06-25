@@ -3,7 +3,7 @@ package com.ecommerceservice.inventory.model.request;
 
 import lombok.Data;
 
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 

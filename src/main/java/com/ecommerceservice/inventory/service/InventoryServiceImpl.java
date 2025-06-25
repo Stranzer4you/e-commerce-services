@@ -8,14 +8,12 @@ import com.ecommerceservice.inventory.mapper.InventoryMapper;
 import com.ecommerceservice.inventory.model.request.AddProductRequestDTO;
 import com.ecommerceservice.inventory.model.response.ProductResponseDTO;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service

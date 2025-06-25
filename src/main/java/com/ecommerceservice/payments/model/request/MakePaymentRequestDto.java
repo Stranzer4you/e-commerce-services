@@ -1,6 +1,6 @@
 package com.ecommerceservice.payments.model.request;
 
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;

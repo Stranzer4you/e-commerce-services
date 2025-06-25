@@ -1,8 +1,7 @@
 package com.ecommerceservice.orders.model.request;
 
 
-import com.ecommerceservice.utility.CommonConstants;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.Data;
 
 import javax.validation.Valid;

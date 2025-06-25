@@ -20,10 +20,13 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.service.PaymentServiceImpl;
-import com.ecommerceservice.utility.CommonConstants;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.CommonConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
+import com.ecommerceservice.utility.enums.ModuleEnum;
+import com.ecommerceservice.utility.enums.OrderStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -32,7 +35,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ecommerceservice.utility.CommonConstants.*;
+import static com.ecommerceservice.utility.constants.CommonConstants.*;
 
 
 @Service
@@ -59,7 +62,6 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private OrdersDetailsRepository ordersDetailsRepository;
-
 
 
     @Override
@@ -100,7 +102,7 @@ public class OrdersServiceImpl implements OrdersService {
         }
         OrdersDao ordersDao = new OrdersDao();
         ordersDao.setCreatedAt(LocalDateTime.now());
-        ordersDao.setStatus(CommonConstants.PROCESSING_STATUS_ID);
+        ordersDao.setStatus(OrderStatusEnum.PROCESSING.getStatusId());
         ordersDao.setTotalAmount(dto.getTotalAmount());
         ordersDao.setCustomerId(dto.getCustomerId());
         List<OrdersDetailsDao> ordersDetailsDaoList = new ArrayList<>();
@@ -117,8 +119,8 @@ public class OrdersServiceImpl implements OrdersService {
         OrdersDao finalOrdersDao = ordersDao;
         if (!ObjectUtils.isEmpty(ordersDao)) {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
-            notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
-            notificationRequest.setStatus(PROCESSING_STATUS_ID);
+            notificationRequest.setNotificationModuleId(ModuleEnum.ORDERS.getModuleId());
+            notificationRequest.setStatus(OrderStatusEnum.PROCESSING.getStatusId());
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList());
@@ -168,7 +170,7 @@ public class OrdersServiceImpl implements OrdersService {
         // send notifications
         if(!ObjectUtils.isEmpty(ordersDao)) {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
-            notificationRequest.setNotificationModuleId(ORDER_MODULE_ID);
+            notificationRequest.setNotificationModuleId(ModuleEnum.ORDERS.getModuleId());
             notificationRequest.setStatus(dto.getStatus());
             notificationRequest.setCustomerId(ordersDao.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());

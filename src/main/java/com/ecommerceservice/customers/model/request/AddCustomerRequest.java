@@ -1,7 +1,7 @@
 package com.ecommerceservice.customers.model.request;
 
 import lombok.Data;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;

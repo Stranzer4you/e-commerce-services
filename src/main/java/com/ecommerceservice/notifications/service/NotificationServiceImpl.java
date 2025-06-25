@@ -13,8 +13,10 @@ import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationRepository;
+import com.ecommerceservice.utility.enums.ModuleEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -22,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ecommerceservice.utility.CommonConstants.*;
+import static com.ecommerceservice.utility.constants.CommonConstants.*;
 
 
 @Service
@@ -44,6 +46,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationMessageServiceImpl notificationMessageService;
+
+    @Value("${notification.type.ids}")
+    private List<Integer> notificationTypeIds;
 
 
     @Override
@@ -83,7 +88,7 @@ public class NotificationServiceImpl implements NotificationService {
             createNotificationRequestDto.setStatus(dto.getStatus());
             createNotificationRequestDto.setCustomerId(dto.getCustomerId());
             TemplatePlaceHoldersDto templatePlaceHoldersDto = generatePlaceHoldersDto(dto.getCustomerId(),dto.getProductIds());
-            if(dto.getNotificationModuleId().equals(PAYMENT_MODULE_ID)){
+            if(dto.getNotificationModuleId().equals(ModuleEnum.PAYMENTS.getModuleId())){
                 templatePlaceHoldersDto.setAmount(dto.getAmount());
             }
             createNotificationRequestDto.setMessage(notificationMessageService.generateMessage(dto.getNotificationModuleId(), dto.getStatus(),type,templatePlaceHoldersDto));

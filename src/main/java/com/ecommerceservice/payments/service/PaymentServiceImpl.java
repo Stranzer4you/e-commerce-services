@@ -14,7 +14,9 @@ import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
 import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.repository.PaymentRepository;
-import com.ecommerceservice.utility.ExceptionConstants;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
+import com.ecommerceservice.utility.enums.ModuleEnum;
+import com.ecommerceservice.utility.enums.PaymentStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.ecommerceservice.utility.CommonConstants.*;
+import static com.ecommerceservice.utility.constants.CommonConstants.*;
 
 
 @Service
@@ -75,19 +77,19 @@ public class PaymentServiceImpl implements PaymentService {
         }
         PaymentDao paymentDao = paymentMapper.paymetDtoToPaymentDao(dto);
         paymentDao.setPaymentTime(LocalDateTime.now());
-        paymentDao.setStatus(PENDING_STATUS_ID);
+        PaymentStatusEnum paymentStatusEnum = PaymentStatusEnum.simulate();
+        paymentDao.setStatus(paymentStatusEnum.getStatusId());
         paymentDao = paymentRepository.save(paymentDao);
-        if(!ObjectUtils.isEmpty(paymentDao)){
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
-            notificationRequest.setNotificationModuleId(PAYMENT_MODULE_ID);
-            notificationRequest.setStatus(PROCESSING_STATUS_ID);
+            notificationRequest.setNotificationModuleId(ModuleEnum.PAYMENTS.getModuleId());
+            notificationRequest.setStatus(paymentStatusEnum.getStatusId());
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(dto.getOrderId());
             notificationRequest.setAmount(dto.getAmount());
             List<Long> productIds = ordersDetailsRepository.findAllByOrderId(dto.getOrderId()).stream().map(OrdersDetailsDao::getProductId).toList();
             notificationRequest.setProductIds(productIds);
             notificationService.sendSmsEmailPushNotifications(notificationRequest);
-        }
+
         return BaseResponseUtility.getBaseResponse(paymentDao);
     }
 }
