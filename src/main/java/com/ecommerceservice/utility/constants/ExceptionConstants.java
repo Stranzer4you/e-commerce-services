@@ -33,4 +33,7 @@ public class ExceptionConstants {
     public static final String CUSTOMER_ADDRESS_SHOULD_NOT_BE_EMPTY = "customer address shouldn't be empty";
     public static final String STATUS_SHOULD_NOT_BE_EMPTY = "status shouldn't be empty";
     public static final String PRODUCT_OUT_OF_STOCK = "product out of stock";
+    public static final String IS_AVAILABLE_SHOULD_NOT_BE_NULL = "isAvailable shouldn't be null";
+    public static final String IS_ACTIVE_SHOULD_NOT_BE_NULL = "isActive shouldn't be null";
+    public static final String PRODUCT_QUANTITY_IS_LESS = "product quantity is less than the purchased quantity";
 }

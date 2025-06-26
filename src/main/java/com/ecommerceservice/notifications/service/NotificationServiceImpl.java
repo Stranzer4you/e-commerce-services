@@ -4,7 +4,7 @@ import com.ecommerceservice.config.BaseResponse;
 import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
-import com.ecommerceservice.inventory.dao.Products;
+import com.ecommerceservice.inventory.dao.Product;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.dao.NotificationDao;
 import com.ecommerceservice.notifications.mapper.NotificationMapper;
@@ -23,8 +23,6 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.ecommerceservice.utility.constants.CommonConstants.*;
 
 
 @Service
@@ -104,10 +102,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     public TemplatePlaceHoldersDto generatePlaceHoldersDto(Long customerId,List<Long> productIds){
         CustomerDao customerDao = customerRepository.findByIdAndIsActiveTrue(customerId);
-        List<Products> products  = inventoryRepository.findAllByIdInAndIsActiveTrue(productIds);
-        String productsNames = products.stream().map(Products::getProductName).collect(Collectors.joining(","));
+        List<Product> products  = inventoryRepository.findAllByIdInAndIsActiveTrue(productIds);
+        String productsNames = products.stream().map(Product::getProductName).collect(Collectors.joining(","));
         if(products.size() >3){
-            productsNames =  products.subList(0,3).stream().map(Products::getProductName).collect(Collectors.joining(", ")) + " + others ";
+            productsNames =  products.subList(0,3).stream().map(Product::getProductName).collect(Collectors.joining(", ")) + " + others ";
         }
         TemplatePlaceHoldersDto dto=new TemplatePlaceHoldersDto();
         dto.setProductName(productsNames);
