@@ -1,16 +1,16 @@
 package com.ecommerceservice.inventory.repository;
 
-import com.ecommerceservice.inventory.dao.Products;
+import com.ecommerceservice.inventory.dao.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface InventoryRepository extends JpaRepository<Products,Long> {
+public interface InventoryRepository extends JpaRepository<Product,Long> {
     Boolean existsByProductNameIgnoreCase(String productName);
 
-    Products findByIdAndIsActiveTrue(Long productId);
+    Product findByIdAndIsActiveTrue(Long productId);
 
-   List<Products> findAllByIdInAndIsActiveTrue(List<Long> productIds);
+   List<Product> findAllByIdInAndIsActiveTrue(List<Long> productIds);
 }

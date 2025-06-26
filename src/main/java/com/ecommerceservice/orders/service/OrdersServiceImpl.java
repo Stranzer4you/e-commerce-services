@@ -5,7 +5,7 @@ import com.ecommerceservice.config.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.inventory.dao.Products;
+import com.ecommerceservice.inventory.dao.Product;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
@@ -20,13 +20,11 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.service.PaymentServiceImpl;
-import com.ecommerceservice.utility.constants.CommonConstants;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
 import com.ecommerceservice.utility.enums.OrderStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -34,8 +32,6 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.ecommerceservice.utility.constants.CommonConstants.*;
 
 
 @Service
@@ -73,12 +69,12 @@ public class OrdersServiceImpl implements OrdersService {
             throw new BadRequestException(ExceptionConstants.TOTAL_PAID_AMOUNT_NOT_MATCHING);
         }
         List<Long> productIds = dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList();
-        List<Products> products = inventoryRepository.findAllById(productIds);
+        List<Product> products = inventoryRepository.findAllById(productIds);
         if (ObjectUtils.isEmpty(products) || products.size() != productIds.size()) {
             throw new BadRequestException(ExceptionConstants.INVALID_PRODUCT_IDS);
         }
         // check inventory of each product
-        Map<Long,Integer> inventoryProductIdQuantityMap = products.stream().collect(Collectors.toMap(Products::getId,Products::getQuantity));
+        Map<Long,Integer> inventoryProductIdQuantityMap = products.stream().collect(Collectors.toMap(Product::getId, Product::getQuantity));
         Map<Long,Integer> customerProductIdQuantityMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId,OrdersDetailRequestDto::getQuantity));
         for(Map.Entry<Long,Integer> map : inventoryProductIdQuantityMap.entrySet()){
             Long productId = map.getKey();
@@ -90,7 +86,7 @@ public class OrdersServiceImpl implements OrdersService {
         }
 
         //  check if amount paid for each object is proper
-        Map<Long, Double> productPricesMap = products.stream().collect(Collectors.toMap(Products::getId, Products::getPrice));
+        Map<Long, Double> productPricesMap = products.stream().collect(Collectors.toMap(Product::getId, Product::getPrice));
         Map<Long, Double> customerPaidMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId, OrdersDetailRequestDto::getAmountPaid));
         for (Map.Entry<Long, Double> map : customerPaidMap.entrySet()) {
             Long productId = map.getKey();
