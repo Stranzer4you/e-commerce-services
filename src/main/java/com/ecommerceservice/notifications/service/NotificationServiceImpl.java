@@ -18,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
@@ -49,6 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
     private List<Integer> notificationTypeIds;
 
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse getAllNotifications(AllNotificationsRequestDto dto) {
         List<NotificationDao> notificationDaos;
@@ -61,6 +65,7 @@ public class NotificationServiceImpl implements NotificationService {
         return BaseResponseUtility.getBaseResponse(notificationDaos);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse createNotification(CreateNotificationRequestDto dto) {
         NotificationDao notificationDao = notificationMapper.notificationDtoToDao(dto);
@@ -70,6 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse createBulkNotifications(List<CreateNotificationRequestDto> dtoList) {
         List<NotificationDao> notificationDaos = notificationMapper.notificationDtoListToDaoList(dtoList);
@@ -78,6 +84,7 @@ public class NotificationServiceImpl implements NotificationService {
         return BaseResponseUtility.getBaseResponse(notificationDaos);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void sendSmsEmailPushNotifications(BulkNotificationRequest dto){
         List<CreateNotificationRequestDto> notifications = new ArrayList<>();
         notificationTypeIds.forEach(type->{

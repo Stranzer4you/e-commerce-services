@@ -14,6 +14,9 @@ import com.ecommerceservice.utility.enums.ModuleEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 @Component
@@ -26,6 +29,7 @@ public class MasterUtility {
     @Autowired
     private NotificationServiceImpl notificationService;
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void updateOrderStatusAndNotify(UpdateOrderStatusDto dto) throws BadRequestException {
         OrdersDao ordersDao  = ordersRepository.findById(dto.getOrderId()).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_ORDER_ID));
         ordersDao.setStatus(dto.getStatus());

@@ -11,6 +11,9 @@ import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
@@ -31,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService{
         return BaseResponseUtility.getBaseResponse(customerResponses);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse addCustomer(AddCustomerRequest addCustomerRequest) throws BadRequestException {
         Boolean isEmailExists = customerRepository.existsByEmail(addCustomerRequest.getEmail());

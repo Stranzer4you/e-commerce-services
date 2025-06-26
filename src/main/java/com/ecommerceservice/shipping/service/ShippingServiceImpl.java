@@ -21,6 +21,9 @@ import com.ecommerceservice.utility.enums.ShippingStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -60,6 +63,7 @@ public class ShippingServiceImpl implements ShippingService {
         return BaseResponseUtility.getBaseResponse(shippingDaos);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse createShipping(CreateShippingRequestDto dto) throws BadRequestException {
         Integer shippingStatusId = ShippingStatusEnum.SHIPPING.getStatusId();
@@ -88,6 +92,7 @@ public class ShippingServiceImpl implements ShippingService {
         return BaseResponseUtility.getBaseResponse(createShippingDao);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse updateShippingStatus(Long orderId,Integer shippingStatus) throws BadRequestException {
         if(!shippingStatus.equals(ShippingStatusEnum.SHIPPED.getStatusId()) && !shippingStatus.equals(ShippingStatusEnum.DELIVERED.getStatusId())){

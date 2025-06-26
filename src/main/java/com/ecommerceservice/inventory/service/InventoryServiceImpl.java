@@ -13,6 +13,9 @@ import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
@@ -40,6 +43,7 @@ public class InventoryServiceImpl implements InventoryService {
         return BaseResponseUtility.getBaseResponse(responseDTOS);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse addProducts(AddProductRequestDTO data) throws BadRequestException {
         Boolean isProductExists = inventoryRepository.existsByProductNameIgnoreCase(data.getProductName());
@@ -52,12 +56,14 @@ public class InventoryServiceImpl implements InventoryService {
         return BaseResponseUtility.getBaseResponse(product);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse getByProductId(Long productId) throws BadRequestException {
         Product product = fetchProductDetailsById(productId);
         return BaseResponseUtility.getBaseResponse(product);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse updateProductById(Long productId, UpdateProductRequestDto updateProductRequestDto) throws BadRequestException {
         Product product = fetchProductDetailsById(productId);
@@ -70,6 +76,7 @@ public class InventoryServiceImpl implements InventoryService {
         return BaseResponseUtility.getBaseResponse(product);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse updateProductStatus(Long productId, Boolean isActive) throws BadRequestException {
         Product product = inventoryRepository.findById(productId).orElseThrow(() -> new BadRequestException(ExceptionConstants.INVALID_PRODUCT_ID));
@@ -77,6 +84,7 @@ public class InventoryServiceImpl implements InventoryService {
         product = inventoryRepository.save(product);
         return BaseResponseUtility.getBaseResponse(product);
     }
+
 
     public Product fetchProductDetailsById(Long productId) throws BadRequestException {
         Product product = inventoryRepository.findByIdAndIsActiveTrue(productId);
@@ -86,6 +94,7 @@ public class InventoryServiceImpl implements InventoryService {
         return product;
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void updateProductQuantities(Map<Long, Integer> productIdToQuantityMap) throws BadRequestException {
         List<Long> productIds = new ArrayList<>(productIdToQuantityMap.keySet());
         List<Product> products = inventoryRepository.findAllById(productIds);

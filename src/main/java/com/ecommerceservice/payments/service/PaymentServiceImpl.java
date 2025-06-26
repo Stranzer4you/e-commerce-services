@@ -29,6 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -83,6 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
         return BaseResponseUtility.getBaseResponse(paymentDaos);
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse makePayment(MakePaymentRequestDto dto) throws BadRequestException {
         Boolean isCustomerExists = customerRepository.existsById(dto.getCustomerId());

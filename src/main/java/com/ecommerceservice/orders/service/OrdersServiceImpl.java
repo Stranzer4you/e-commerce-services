@@ -26,6 +26,9 @@ import com.ecommerceservice.utility.enums.OrderStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -60,6 +63,7 @@ public class OrdersServiceImpl implements OrdersService {
     private OrdersDetailsRepository ordersDetailsRepository;
 
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse createOrder(CreateOrderRequestDto dto) throws BadRequestException {
         CustomerDao customerDao = customerRepository.findById(dto.getCustomerId()).orElseThrow(() -> new BadRequestException(ExceptionConstants.INVALID_CUSTOMER));
@@ -152,6 +156,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public BaseResponse updateOrderStatus(UpdateOrderStatusDto dto) throws BadRequestException {
         OrdersDao ordersDao  = ordersRepository.findById(dto.getOrderId()).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_ORDER_ID));
@@ -169,11 +174,6 @@ public class OrdersServiceImpl implements OrdersService {
             notificationService.sendSmsEmailPushNotifications(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(ordersDao);
-    }
-
-
-    public List<OrdersDetailsDao> getOrderDetailsByOrderId(Long orderId){
-        return ordersDetailsRepository.findAllByOrderId(orderId);
     }
 
 }
