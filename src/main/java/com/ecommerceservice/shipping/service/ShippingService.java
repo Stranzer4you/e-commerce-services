@@ -12,4 +12,6 @@ public interface ShippingService {
     BaseResponse getAllShippings(@Valid ShippingRequestDto dto);
 
     BaseResponse createShipping(CreateShippingRequestDto dto) throws BadRequestException;
+
+    BaseResponse updateShippingStatus(Long orderId,Integer shippingStatus) throws BadRequestException;
 }

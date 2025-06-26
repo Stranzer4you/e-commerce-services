@@ -33,4 +33,8 @@ public class ExceptionConstants {
     public static final String CUSTOMER_ADDRESS_SHOULD_NOT_BE_EMPTY = "customer address shouldn't be empty";
     public static final String STATUS_SHOULD_NOT_BE_EMPTY = "status shouldn't be empty";
     public static final String PRODUCT_OUT_OF_STOCK = "product out of stock";
+    public static final String SHIPPING_ALREADY_STARTED_FOR_THIS_ORDER = "shipping is already started for this order";
+    public static final String INVALID_SHIPPING_ID = "invalid shipping Id";
+    public static final String ORDER_ALREADY_SAME_STATUS = "order is already on the requested status ";
+    public static final String INVALID_SHIPPING_STATUS = "invalid shipping status Id";
 }
