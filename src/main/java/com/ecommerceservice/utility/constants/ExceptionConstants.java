@@ -33,7 +33,14 @@ public class ExceptionConstants {
     public static final String CUSTOMER_ADDRESS_SHOULD_NOT_BE_EMPTY = "customer address shouldn't be empty";
     public static final String STATUS_SHOULD_NOT_BE_EMPTY = "status shouldn't be empty";
     public static final String PRODUCT_OUT_OF_STOCK = "product out of stock";
+<<<<<<< feature/shipping-module
+    public static final String SHIPPING_ALREADY_STARTED_FOR_THIS_ORDER = "shipping is already started for this order";
+    public static final String INVALID_SHIPPING_ID = "invalid shipping Id";
+    public static final String ORDER_ALREADY_SAME_STATUS = "order is already on the requested status ";
+    public static final String INVALID_SHIPPING_STATUS = "invalid shipping status Id";
+=======
     public static final String IS_AVAILABLE_SHOULD_NOT_BE_NULL = "isAvailable shouldn't be null";
     public static final String IS_ACTIVE_SHOULD_NOT_BE_NULL = "isActive shouldn't be null";
     public static final String PRODUCT_QUANTITY_IS_LESS = "product quantity is less than the purchased quantity";
+>>>>>>> master
 }

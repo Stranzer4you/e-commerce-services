@@ -28,5 +28,10 @@ public class ShippingController {
         return shippingService.createShipping(dto);
     }
 
+    @PutMapping("/{orderId}")
+    public BaseResponse updateShippingStatus(@PathVariable("orderId") Long orderId ,@RequestParam(value = "shippingStatus",required = true) Integer shippingStatus) throws BadRequestException {
+        return shippingService.updateShippingStatus(orderId,shippingStatus);
+    }
+
 }
 
