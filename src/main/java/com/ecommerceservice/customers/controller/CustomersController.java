@@ -1,9 +1,7 @@
 package com.ecommerceservice.customers.controller;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.customers.model.request.AddCustomerRequest;
-import com.ecommerceservice.customers.model.response.CustomerResponse;
 import com.ecommerceservice.customers.service.CustomerService;
 import com.ecommerceservice.exceptions.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;

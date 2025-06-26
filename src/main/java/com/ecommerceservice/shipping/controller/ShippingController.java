@@ -1,7 +1,7 @@
 package com.ecommerceservice.shipping.controller;
 
 
-import com.ecommerceservice.config.BaseResponse;
+import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.shipping.model.request.ShippingRequestDto;
 import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;

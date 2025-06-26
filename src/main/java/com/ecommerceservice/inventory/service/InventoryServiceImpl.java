@@ -1,7 +1,7 @@
 package com.ecommerceservice.inventory.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Product;
 import com.ecommerceservice.inventory.mapper.InventoryMapper;
@@ -11,14 +11,14 @@ import com.ecommerceservice.inventory.model.response.ProductResponseDTO;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import static com.ecommerceservice.utility.constants.CommonConstants.ZERO_AVAILABLE_QUANTITY;
 
@@ -86,17 +86,26 @@ public class InventoryServiceImpl implements InventoryService {
         return product;
     }
 
-    public void updateProductQuantity(Long productId, Integer quantity) throws BadRequestException {
-        Product product = fetchProductDetailsById(productId);
-        Integer productQuantity = product.getQuantity();
-        if (quantity > productQuantity) {
-            throw new BadRequestException(ExceptionConstants.PRODUCT_QUANTITY_IS_LESS);
+    public void updateProductQuantities(Map<Long, Integer> productIdToQuantityMap) throws BadRequestException {
+        List<Long> productIds = new ArrayList<>(productIdToQuantityMap.keySet());
+        List<Product> products = inventoryRepository.findAllById(productIds);
+        if (products.size() != productIds.size()) {
+            throw new BadRequestException(ExceptionConstants.ONE_OR_MORE_PRODUCTS_ARE_INVALID);
         }
-        productQuantity = productQuantity - quantity;
-        if (productQuantity.equals(ZERO_AVAILABLE_QUANTITY)) {
-            product.setIsAvailable(false);
+        for (Product product : products) {
+            Long productId = product.getId();
+            Integer requestedQuantity = productIdToQuantityMap.get(productId);
+            Integer currentQuantity = product.getQuantity();
+            if (requestedQuantity > currentQuantity) {
+                throw new BadRequestException(ExceptionConstants.PRODUCT_OUT_OF_STOCK);
+            }
+            Integer updatedQuantity = currentQuantity - requestedQuantity;
+            product.setQuantity(updatedQuantity);
+            if (ZERO_AVAILABLE_QUANTITY.equals(updatedQuantity)) {
+                product.setIsAvailable(false);
+            }
         }
-        product.setQuantity(productQuantity);
-        inventoryRepository.save(product);
+        inventoryRepository.saveAll(products);
     }
+
 }

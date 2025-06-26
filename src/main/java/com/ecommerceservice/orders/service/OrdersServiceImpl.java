@@ -1,7 +1,7 @@
 package com.ecommerceservice.orders.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
@@ -73,26 +73,20 @@ public class OrdersServiceImpl implements OrdersService {
         if (ObjectUtils.isEmpty(products) || products.size() != productIds.size()) {
             throw new BadRequestException(ExceptionConstants.INVALID_PRODUCT_IDS);
         }
-        // check inventory of each product
-        Map<Long,Integer> inventoryProductIdQuantityMap = products.stream().collect(Collectors.toMap(Product::getId, Product::getQuantity));
-        Map<Long,Integer> customerProductIdQuantityMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId,OrdersDetailRequestDto::getQuantity));
-        for(Map.Entry<Long,Integer> map : inventoryProductIdQuantityMap.entrySet()){
-            Long productId = map.getKey();
-            Integer quantity = map.getValue();
-            Integer requestedQuantity = customerProductIdQuantityMap.get(productId);
-            if(requestedQuantity > quantity){
+        Map<Long, Integer> inventoryProductIdQuantityMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Product::getQuantity));
+        Map<Long, Double> productPricesMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Product::getPrice));
+        for (OrdersDetailRequestDto order : dto.getOrdersDetails()) {
+            Long productId = order.getProductId();
+            Integer requestedQuantity = order.getQuantity();
+            Double paidAmount = order.getAmountPaid();
+            Integer availableQuantity = inventoryProductIdQuantityMap.get(productId);
+            if (requestedQuantity > availableQuantity) {
                 throw new BadRequestException(ExceptionConstants.PRODUCT_OUT_OF_STOCK);
             }
-        }
-
-        //  check if amount paid for each object is proper
-        Map<Long, Double> productPricesMap = products.stream().collect(Collectors.toMap(Product::getId, Product::getPrice));
-        Map<Long, Double> customerPaidMap = dto.getOrdersDetails().stream().collect(Collectors.toMap(OrdersDetailRequestDto::getProductId, OrdersDetailRequestDto::getAmountPaid));
-        for (Map.Entry<Long, Double> map : customerPaidMap.entrySet()) {
-            Long productId = map.getKey();
-            Double userPaidAmount = map.getValue();
-            Double productPrice = productPricesMap.get(productId);
-            if (!Objects.equals(userPaidAmount, productPrice)) {
+            Double actualPrice = productPricesMap.get(productId);
+            if (!Objects.equals(actualPrice, paidAmount)) {
                 throw new BadRequestException(ExceptionConstants.CUSTOMER_NOT_PAID_FULL_AMOUNT);
             }
         }

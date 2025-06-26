@@ -4,6 +4,7 @@ import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.notifications.dao.NotificationMessage;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationMessageRepository;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.ecommerceservice.notifications.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.inventory.dao.Product;

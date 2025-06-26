@@ -1,4 +1,4 @@
-package com.ecommerceservice.config;
+package com.ecommerceservice.utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

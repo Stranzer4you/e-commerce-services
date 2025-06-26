@@ -1,7 +1,7 @@
 package com.ecommerceservice.customers.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.mapper.CustomerMapper;
 import com.ecommerceservice.customers.model.request.AddCustomerRequest;

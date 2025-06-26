@@ -1,7 +1,6 @@
 package com.ecommerceservice.notifications.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.exceptions.BadRequestException;
+import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.notifications.model.request.AllNotificationsRequestDto;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 

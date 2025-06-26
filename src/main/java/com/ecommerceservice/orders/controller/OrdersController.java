@@ -1,7 +1,7 @@
 package com.ecommerceservice.orders.controller;
 
 
-import com.ecommerceservice.config.BaseResponse;
+import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.orders.model.request.AllOrdersRequestDto;
 import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;

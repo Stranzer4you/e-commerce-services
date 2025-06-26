@@ -1,7 +1,7 @@
 package com.ecommerceservice.shipping.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
@@ -17,7 +17,6 @@ import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
 import com.ecommerceservice.shipping.repository.ShippingRepository;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
-import com.ecommerceservice.utility.enums.PaymentStatusEnum;
 import com.ecommerceservice.utility.enums.ShippingStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +93,10 @@ public class ShippingServiceImpl implements ShippingService {
         if(!shippingStatus.equals(ShippingStatusEnum.SHIPPED.getStatusId()) && !shippingStatus.equals(ShippingStatusEnum.DELIVERED.getStatusId())){
             throw  new BadRequestException(ExceptionConstants.INVALID_SHIPPING_STATUS);
         }
-        ShippingDao shippingDao = shippingRepository.findById(orderId).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_SHIPPING_ID));
+        ShippingDao shippingDao = shippingRepository.findByOrderId(orderId);
+        if(ObjectUtils.isEmpty(shippingDao)){
+            throw  new BadRequestException(ExceptionConstants.INVALID_SHIPPING_ID);
+        }
         if(shippingDao.getStatus().equals(shippingStatus)){
             throw new BadRequestException(ExceptionConstants.ORDER_ALREADY_SAME_STATUS);
         }

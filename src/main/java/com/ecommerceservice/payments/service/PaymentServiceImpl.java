@@ -1,7 +1,11 @@
 package com.ecommerceservice.payments.service;
 
-import com.ecommerceservice.config.BaseResponse;
-import com.ecommerceservice.config.BaseResponseUtility;
+import com.ecommerceservice.inventory.service.InventoryServiceImpl;
+import com.ecommerceservice.orders.dao.OrdersDao;
+import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
+import com.ecommerceservice.shipping.service.ShippingServiceImpl;
+import com.ecommerceservice.utility.BaseResponse;
+import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
@@ -13,20 +17,25 @@ import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
 import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
+import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.repository.PaymentRepository;
+import com.ecommerceservice.utility.MasterUtility;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
+import com.ecommerceservice.utility.enums.OrderStatusEnum;
 import com.ecommerceservice.utility.enums.PaymentStatusEnum;
+import com.ecommerceservice.utility.enums.ShippingStatusEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.ecommerceservice.utility.constants.CommonConstants.*;
+import java.util.Map;
 
 
 @Service
@@ -52,6 +61,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private OrdersDetailsRepository ordersDetailsRepository;
 
+    @Autowired
+    private MasterUtility masterUtility;
+
+    @Autowired
+    private InventoryServiceImpl inventoryService;
+
+    @Autowired
+    private ShippingServiceImpl shippingService;
+
 
     @Override
     public BaseResponse getAllPayments(AllPaymentRequestDto dto) {
@@ -71,18 +89,18 @@ public class PaymentServiceImpl implements PaymentService {
         if(Boolean.FALSE.equals(isCustomerExists)){
             throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);
         }
-        Boolean isOrderExists = ordersRepository.existsById(dto.getOrderId());
-        if(Boolean.FALSE.equals(isOrderExists)){
-            throw new BadRequestException(ExceptionConstants.INVALID_ORDER_ID);
-        }
+        OrdersDao ordersDao = ordersRepository.findById(dto.getOrderId()).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_ORDER_ID));
         PaymentDao paymentDao = paymentMapper.paymetDtoToPaymentDao(dto);
         paymentDao.setPaymentTime(LocalDateTime.now());
         PaymentStatusEnum paymentStatusEnum = PaymentStatusEnum.simulate();
-        paymentDao.setStatus(paymentStatusEnum.getStatusId());
+        Integer paymentStatus = paymentStatusEnum.getStatusId();
+        paymentDao.setStatus(paymentStatus);
+
         paymentDao = paymentRepository.save(paymentDao);
+        if(!ObjectUtils.isEmpty(paymentDao)) {
             BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
             notificationRequest.setNotificationModuleId(ModuleEnum.PAYMENTS.getModuleId());
-            notificationRequest.setStatus(paymentStatusEnum.getStatusId());
+            notificationRequest.setStatus(paymentStatus);
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(dto.getOrderId());
             notificationRequest.setAmount(dto.getAmount());
@@ -90,6 +108,34 @@ public class PaymentServiceImpl implements PaymentService {
             notificationRequest.setProductIds(productIds);
             notificationService.sendSmsEmailPushNotifications(notificationRequest);
 
+            if(paymentStatus.equals(PaymentStatusEnum.SUCCESS.getStatusId())){
+                // update order status
+                UpdateOrderStatusDto updateOrderStatusDto = generateOrderUpdateStatusRequest(dto.getOrderId(), OrderStatusEnum.PROCESSED.getStatusId());
+                masterUtility.updateOrderStatusAndNotify(updateOrderStatusDto);
+                // update inventory
+                Map<Long,Integer> inventoryUpdateRequest = new HashMap<>();
+                ordersDao.getOrdersDetailsDaoList().forEach(x->{
+                    inventoryUpdateRequest.put(x.getProductId(), x.getQuantity());
+                });
+                inventoryService.updateProductQuantities(inventoryUpdateRequest);
+                // create shipping
+                CreateShippingRequestDto createShippingRequestDto = new CreateShippingRequestDto();
+                createShippingRequestDto.setCustomerId(dto.getCustomerId());
+                createShippingRequestDto.setOrderId(dto.getOrderId());
+                shippingService.createShipping(createShippingRequestDto);
+            }
+            else if(paymentStatus.equals(PaymentStatusEnum.FAILED.getStatusId())){
+                UpdateOrderStatusDto updateOrderStatusDto = generateOrderUpdateStatusRequest(dto.getOrderId(),OrderStatusEnum.FAILED.getStatusId());
+                masterUtility.updateOrderStatusAndNotify(updateOrderStatusDto);
+            }
+        }
         return BaseResponseUtility.getBaseResponse(paymentDao);
+    }
+
+    public UpdateOrderStatusDto generateOrderUpdateStatusRequest(Long orderId,Integer status){
+        UpdateOrderStatusDto dto = new UpdateOrderStatusDto();
+        dto.setOrderId(orderId);
+        dto.setStatus(status);
+        return  dto;
     }
 }
