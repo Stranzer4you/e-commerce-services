@@ -123,7 +123,6 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList());
             notificationRequest.setAmount(dto.getTotalAmount());
-            //notificationService.sendSmsEmailPushNotifications(notificationRequest);
 
             //publish to order created topic
             orderKafkaProducer.publishToOrderCreatedTopic(notificationRequest);
@@ -133,7 +132,6 @@ public class OrdersServiceImpl implements OrdersService {
             paymentInitiatedEvent.setAmount(dto.getTotalAmount());
             paymentInitiatedEvent.setOrderId(ordersDao.getId());
             paymentInitiatedEvent.setCustomerId(dto.getCustomerId());
-            //paymentService.makePayment(paymentInitiatedEvent);
 
             //publish to payment initiated topics
             orderKafkaProducer.publishToPaymentInitiation(paymentInitiatedEvent);
@@ -182,7 +180,6 @@ public class OrdersServiceImpl implements OrdersService {
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             notificationRequest.setAmount(ordersDao.getTotalAmount());
-//            notificationService.sendSmsEmailPushNotifications(notificationRequest);
 
             //publish to order status update topic
             orderKafkaProducer.publishToStatusUpdate(notificationRequest);

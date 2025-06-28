@@ -13,7 +13,7 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.shipping.dao.ShippingDao;
 import com.ecommerceservice.shipping.mapper.ShippingMapper;
 import com.ecommerceservice.shipping.model.request.ShippingRequestDto;
-import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
+import com.ecommerceservice.shipping.model.request.ShippingInitiatedEvent;
 import com.ecommerceservice.shipping.repository.ShippingRepository;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
@@ -65,7 +65,7 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
-    public BaseResponse createShipping(CreateShippingRequestDto dto) throws BadRequestException {
+    public BaseResponse createShipping(ShippingInitiatedEvent dto) throws BadRequestException {
         Integer shippingStatusId = ShippingStatusEnum.SHIPPING.getStatusId();
         ShippingDao shippingDao = shippingRepository.findByOrderIdAndCustomerIdAndStatus(dto.getOrderId(), dto.getCustomerId(), shippingStatusId);
         if (!ObjectUtils.isEmpty(shippingDao)) {

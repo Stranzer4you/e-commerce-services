@@ -41,7 +41,6 @@ public class MasterUtility {
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             notificationRequest.setAmount(ordersDao.getTotalAmount());
-            //notificationService.sendSmsEmailPushNotifications(notificationRequest);
 
             // publish to order status update topic
             orderKafkaProducer.publishToStatusUpdate(notificationRequest);
