@@ -1,5 +1,7 @@
 package com.ecommerceservice.inventory.service;
 
+import com.ecommerceservice.orders.dao.OrdersDetailsDao;
+import com.ecommerceservice.orders.model.request.InventoryUpdateEvent;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.exceptions.BadRequestException;
@@ -20,6 +22,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,15 +98,20 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public void updateProductQuantities(Map<Long, Integer> productIdToQuantityMap) throws BadRequestException {
-        List<Long> productIds = new ArrayList<>(productIdToQuantityMap.keySet());
+    public void updateProductQuantities(InventoryUpdateEvent inventoryUpdateEvent) throws BadRequestException {
+
+        Map<Long,Integer> inventoryUpdateRequest = new HashMap<>();
+        inventoryUpdateEvent.getOrdersDetailsDaoList().forEach(x->{
+            inventoryUpdateRequest.put(x.getProductId(), x.getQuantity());
+        });
+        List<Long> productIds = new ArrayList<>(inventoryUpdateRequest.keySet());
         List<Product> products = inventoryRepository.findAllById(productIds);
         if (products.size() != productIds.size()) {
             throw new BadRequestException(ExceptionConstants.ONE_OR_MORE_PRODUCTS_ARE_INVALID);
         }
         for (Product product : products) {
             Long productId = product.getId();
-            Integer requestedQuantity = productIdToQuantityMap.get(productId);
+            Integer requestedQuantity = inventoryUpdateRequest.get(productId);
             Integer currentQuantity = product.getQuantity();
             if (requestedQuantity > currentQuantity) {
                 throw new BadRequestException(ExceptionConstants.PRODUCT_OUT_OF_STOCK);
