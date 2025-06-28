@@ -1,5 +1,6 @@
 package com.ecommerceservice.shipping.service;
 
+import com.ecommerceservice.shipping.kafka.ShippingProducer;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
@@ -51,6 +52,9 @@ public class ShippingServiceImpl implements ShippingService {
     @Autowired
     private NotificationServiceImpl notificationService;
 
+    @Autowired
+    private ShippingProducer shippingProducer;
+
 
     @Override
     public BaseResponse getAllShippings(ShippingRequestDto dto) {
@@ -87,7 +91,9 @@ public class ShippingServiceImpl implements ShippingService {
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());
             request.setOrderId(dto.getOrderId());
             request.setCustomerId(dto.getCustomerId());
-            notificationService.sendSmsEmailPushNotifications(request);
+
+            //publish to shipping status update topic
+            shippingProducer.publishToShippingStatusTopic(request);
         }
         return BaseResponseUtility.getBaseResponse(createShippingDao);
     }
@@ -115,7 +121,9 @@ public class ShippingServiceImpl implements ShippingService {
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());
             request.setOrderId(shippingDao.getOrderId());
             request.setCustomerId(shippingDao.getCustomerId());
-            notificationService.sendSmsEmailPushNotifications(request);
+
+            //publish to shipping status topic
+            shippingProducer.publishToShippingStatusTopic(request);
         }
 
         return BaseResponseUtility.getBaseResponse(shippingDao);
