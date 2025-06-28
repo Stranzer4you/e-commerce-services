@@ -8,7 +8,7 @@ import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.model.request.NotificationRequestEvent;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
 import com.ecommerceservice.orders.repository.OrdersDetailsRepository;
@@ -16,7 +16,7 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.dao.PaymentDao;
 import com.ecommerceservice.payments.mapper.PaymentMapper;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
-import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
+import com.ecommerceservice.payments.model.request.PaymentInitiatedEvent;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.repository.PaymentRepository;
 import com.ecommerceservice.utility.MasterUtility;
@@ -24,9 +24,7 @@ import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
 import com.ecommerceservice.utility.enums.OrderStatusEnum;
 import com.ecommerceservice.utility.enums.PaymentStatusEnum;
-import com.ecommerceservice.utility.enums.ShippingStatusEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -88,7 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
-    public BaseResponse makePayment(MakePaymentRequestDto dto) throws BadRequestException {
+    public BaseResponse makePayment(PaymentInitiatedEvent dto) throws BadRequestException {
         Boolean isCustomerExists = customerRepository.existsById(dto.getCustomerId());
         if(Boolean.FALSE.equals(isCustomerExists)){
             throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);
@@ -102,7 +100,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentDao = paymentRepository.save(paymentDao);
         if(!ObjectUtils.isEmpty(paymentDao)) {
-            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            NotificationRequestEvent notificationRequest = new NotificationRequestEvent();
             notificationRequest.setNotificationModuleId(ModuleEnum.PAYMENTS.getModuleId());
             notificationRequest.setStatus(paymentStatus);
             notificationRequest.setCustomerId(dto.getCustomerId());

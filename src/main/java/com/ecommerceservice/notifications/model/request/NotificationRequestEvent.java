@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class BulkNotificationRequest {
+public class NotificationRequestEvent {
     private Long customerId;
     private Long orderId;
     private Integer status;

@@ -5,7 +5,7 @@ import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.model.request.NotificationRequestEvent;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
@@ -81,7 +81,7 @@ public class ShippingServiceImpl implements ShippingService {
         createShippingDao.setStatus(shippingStatusId);
         createShippingDao = shippingRepository.save(createShippingDao);
         if (!ObjectUtils.isEmpty(createShippingDao)) {
-            BulkNotificationRequest request = new BulkNotificationRequest();
+            NotificationRequestEvent request = new NotificationRequestEvent();
             request.setStatus(shippingStatusId);
             request.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());
@@ -109,7 +109,7 @@ public class ShippingServiceImpl implements ShippingService {
         shippingDao.setStatus(shippingStatus);
         shippingDao = shippingRepository.save(shippingDao);
         if(!ObjectUtils.isEmpty(shippingDao)){
-            BulkNotificationRequest request = new BulkNotificationRequest();
+            NotificationRequestEvent request = new NotificationRequestEvent();
             request.setStatus(shippingStatus);
             request.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());

@@ -9,7 +9,7 @@ import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.notifications.dao.NotificationDao;
 import com.ecommerceservice.notifications.mapper.NotificationMapper;
 import com.ecommerceservice.notifications.model.request.AllNotificationsRequestDto;
-import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.model.request.NotificationRequestEvent;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationRepository;
@@ -85,7 +85,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public void sendSmsEmailPushNotifications(BulkNotificationRequest dto){
+    public void sendSmsEmailPushNotifications(NotificationRequestEvent dto){
         List<CreateNotificationRequestDto> notifications = new ArrayList<>();
         notificationTypeIds.forEach(type->{
             CreateNotificationRequestDto createNotificationRequestDto = new CreateNotificationRequestDto();
