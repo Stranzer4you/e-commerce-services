@@ -1,5 +1,6 @@
 package com.ecommerceservice.orders.service;
 
+import com.ecommerceservice.orders.kafka.OrderKafkaProducer;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
@@ -7,7 +8,7 @@ import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.inventory.dao.Product;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
-import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.model.request.NotificationRequestEvent;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
@@ -17,7 +18,7 @@ import com.ecommerceservice.orders.model.request.CreateOrderRequestDto;
 import com.ecommerceservice.orders.model.request.OrdersDetailRequestDto;
 import com.ecommerceservice.orders.repository.OrdersDetailsRepository;
 import com.ecommerceservice.orders.repository.OrdersRepository;
-import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
+import com.ecommerceservice.payments.model.request.PaymentInitiatedEvent;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.service.PaymentServiceImpl;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
@@ -61,6 +62,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private OrdersDetailsRepository ordersDetailsRepository;
+
+    @Autowired
+    private OrderKafkaProducer orderKafkaProducer;
 
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -112,20 +116,27 @@ public class OrdersServiceImpl implements OrdersService {
         // send notification upon order creating
         OrdersDao finalOrdersDao = ordersDao;
         if (!ObjectUtils.isEmpty(ordersDao)) {
-            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            NotificationRequestEvent notificationRequest = new NotificationRequestEvent();
             notificationRequest.setNotificationModuleId(ModuleEnum.ORDERS.getModuleId());
             notificationRequest.setStatus(OrderStatusEnum.PROCESSING.getStatusId());
             notificationRequest.setCustomerId(dto.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(dto.getOrdersDetails().stream().map(OrdersDetailRequestDto::getProductId).toList());
             notificationRequest.setAmount(dto.getTotalAmount());
-            notificationService.sendSmsEmailPushNotifications(notificationRequest);
-           // make payment
-            MakePaymentRequestDto makePaymentRequestDto = new MakePaymentRequestDto();
-            makePaymentRequestDto.setAmount(dto.getTotalAmount());
-            makePaymentRequestDto.setOrderId(ordersDao.getId());
-            makePaymentRequestDto.setCustomerId(dto.getCustomerId());
-            paymentService.makePayment(makePaymentRequestDto);
+            //notificationService.sendSmsEmailPushNotifications(notificationRequest);
+
+            //publish to order created topic
+            orderKafkaProducer.publishToOrderCreatedTopic(notificationRequest);
+
+            // make payment
+            PaymentInitiatedEvent paymentInitiatedEvent = new PaymentInitiatedEvent();
+            paymentInitiatedEvent.setAmount(dto.getTotalAmount());
+            paymentInitiatedEvent.setOrderId(ordersDao.getId());
+            paymentInitiatedEvent.setCustomerId(dto.getCustomerId());
+            //paymentService.makePayment(paymentInitiatedEvent);
+
+            //publish to payment initiated topics
+            orderKafkaProducer.publishToPaymentInitiation(paymentInitiatedEvent);
         }
 
         ordersDao.getOrdersDetailsDaoList().forEach(ordersDetailsDao -> {
@@ -164,14 +175,17 @@ public class OrdersServiceImpl implements OrdersService {
         ordersDao = ordersRepository.save(ordersDao);
         // send notifications
         if(!ObjectUtils.isEmpty(ordersDao)) {
-            BulkNotificationRequest notificationRequest = new BulkNotificationRequest();
+            NotificationRequestEvent notificationRequest = new NotificationRequestEvent();
             notificationRequest.setNotificationModuleId(ModuleEnum.ORDERS.getModuleId());
             notificationRequest.setStatus(dto.getStatus());
             notificationRequest.setCustomerId(ordersDao.getCustomerId());
             notificationRequest.setOrderId(ordersDao.getId());
             notificationRequest.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             notificationRequest.setAmount(ordersDao.getTotalAmount());
-            notificationService.sendSmsEmailPushNotifications(notificationRequest);
+//            notificationService.sendSmsEmailPushNotifications(notificationRequest);
+
+            //publish to order status update topic
+            orderKafkaProducer.publishToStatusUpdate(notificationRequest);
         }
         return BaseResponseUtility.getBaseResponse(ordersDao);
     }

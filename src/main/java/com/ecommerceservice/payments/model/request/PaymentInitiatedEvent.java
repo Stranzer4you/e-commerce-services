@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class MakePaymentRequestDto {
+public class PaymentInitiatedEvent {
     @NotNull(message = ExceptionConstants.ORDER_ID_SHOULD_NOT_BE_EMPTY)
     private Long orderId;
     @NotNull(message = ExceptionConstants.CUSTOMER_ID_SHOULD_NOT_BE_EMPTY)

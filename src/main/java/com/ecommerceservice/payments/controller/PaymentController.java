@@ -1,10 +1,10 @@
 package com.ecommerceservice.payments.controller;
 
 
+import com.ecommerceservice.payments.model.request.PaymentInitiatedEvent;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.payments.model.request.AllPaymentRequestDto;
-import com.ecommerceservice.payments.model.request.MakePaymentRequestDto;
 import com.ecommerceservice.payments.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class PaymentController {
     }
 
     @PostMapping()
-    public BaseResponse makePayment(@Valid @RequestBody MakePaymentRequestDto dto) throws BadRequestException {
+    public BaseResponse makePayment(@Valid @RequestBody PaymentInitiatedEvent dto) throws BadRequestException {
         return paymentService.makePayment(dto);
     }
 
