@@ -1,11 +1,12 @@
 package com.ecommerceservice.shipping.service;
 
+import com.ecommerceservice.shipping.kafka.ShippingProducer;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
-import com.ecommerceservice.notifications.model.request.BulkNotificationRequest;
+import com.ecommerceservice.notifications.model.request.NotificationRequestEvent;
 import com.ecommerceservice.notifications.service.NotificationServiceImpl;
 import com.ecommerceservice.orders.dao.OrdersDao;
 import com.ecommerceservice.orders.dao.OrdersDetailsDao;
@@ -13,7 +14,7 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.shipping.dao.ShippingDao;
 import com.ecommerceservice.shipping.mapper.ShippingMapper;
 import com.ecommerceservice.shipping.model.request.ShippingRequestDto;
-import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
+import com.ecommerceservice.shipping.model.request.ShippingInitiatedEvent;
 import com.ecommerceservice.shipping.repository.ShippingRepository;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
@@ -51,6 +52,9 @@ public class ShippingServiceImpl implements ShippingService {
     @Autowired
     private NotificationServiceImpl notificationService;
 
+    @Autowired
+    private ShippingProducer shippingProducer;
+
 
     @Override
     public BaseResponse getAllShippings(ShippingRequestDto dto) {
@@ -65,7 +69,7 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
-    public BaseResponse createShipping(CreateShippingRequestDto dto) throws BadRequestException {
+    public BaseResponse createShipping(ShippingInitiatedEvent dto) throws BadRequestException {
         Integer shippingStatusId = ShippingStatusEnum.SHIPPING.getStatusId();
         ShippingDao shippingDao = shippingRepository.findByOrderIdAndCustomerIdAndStatus(dto.getOrderId(), dto.getCustomerId(), shippingStatusId);
         if (!ObjectUtils.isEmpty(shippingDao)) {
@@ -81,13 +85,15 @@ public class ShippingServiceImpl implements ShippingService {
         createShippingDao.setStatus(shippingStatusId);
         createShippingDao = shippingRepository.save(createShippingDao);
         if (!ObjectUtils.isEmpty(createShippingDao)) {
-            BulkNotificationRequest request = new BulkNotificationRequest();
+            NotificationRequestEvent request = new NotificationRequestEvent();
             request.setStatus(shippingStatusId);
             request.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());
             request.setOrderId(dto.getOrderId());
             request.setCustomerId(dto.getCustomerId());
-            notificationService.sendSmsEmailPushNotifications(request);
+
+            //publish to shipping status update topic
+            shippingProducer.publishToShippingStatusTopic(request);
         }
         return BaseResponseUtility.getBaseResponse(createShippingDao);
     }
@@ -109,13 +115,15 @@ public class ShippingServiceImpl implements ShippingService {
         shippingDao.setStatus(shippingStatus);
         shippingDao = shippingRepository.save(shippingDao);
         if(!ObjectUtils.isEmpty(shippingDao)){
-            BulkNotificationRequest request = new BulkNotificationRequest();
+            NotificationRequestEvent request = new NotificationRequestEvent();
             request.setStatus(shippingStatus);
             request.setProductIds(ordersDao.getOrdersDetailsDaoList().stream().map(OrdersDetailsDao::getProductId).toList());
             request.setNotificationModuleId(ModuleEnum.SHIPPING.getModuleId());
             request.setOrderId(shippingDao.getOrderId());
             request.setCustomerId(shippingDao.getCustomerId());
-            notificationService.sendSmsEmailPushNotifications(request);
+
+            //publish to shipping status topic
+            shippingProducer.publishToShippingStatusTopic(request);
         }
 
         return BaseResponseUtility.getBaseResponse(shippingDao);

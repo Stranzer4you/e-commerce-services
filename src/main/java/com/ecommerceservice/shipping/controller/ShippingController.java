@@ -4,7 +4,7 @@ package com.ecommerceservice.shipping.controller;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.shipping.model.request.ShippingRequestDto;
-import com.ecommerceservice.shipping.model.request.CreateShippingRequestDto;
+import com.ecommerceservice.shipping.model.request.ShippingInitiatedEvent;
 import com.ecommerceservice.shipping.service.ShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class ShippingController {
     }
 
     @PostMapping()
-    public BaseResponse createShipping(@Valid @RequestBody CreateShippingRequestDto dto) throws BadRequestException {
+    public BaseResponse createShipping(@Valid @RequestBody ShippingInitiatedEvent dto) throws BadRequestException {
         return shippingService.createShipping(dto);
     }
 
