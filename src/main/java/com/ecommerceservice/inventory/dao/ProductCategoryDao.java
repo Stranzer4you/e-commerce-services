@@ -1,48 +1,31 @@
 package com.ecommerceservice.inventory.dao;
 
-
-import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "\"ProductCategory\"")
 @Entity
-@Table(name = "\"Products\"")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class ProductCategoryDao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "\"ID\"")
     private Long id;
 
-    @Column(name = "\"ProductName\"")
+    @Column(name = "\"Name\"")
     private String productName;
-
-    @Column(name = "\"Price\"")
-    private Double price;
-
-    @Column(name = "\"Quantity\"")
-    private Integer quantity;
-
-    @Column(name = "\"IsAvailable\"")
-    private Boolean isAvailable;
 
     @Column(name = "\"CreatedAt\"")
     private LocalDateTime createdAt;
 
     @Column(name = "\"IsActive\"")
     private Boolean isActive;
-
-    @Column(name = "\"ProductCategoryID\"")
-    private Integer productCategoryId;
-
-    @Column(name = "\"Rating\"")
-    private Double rating;
-
 
 }
