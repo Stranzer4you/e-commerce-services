@@ -41,4 +41,8 @@ public class ExceptionConstants {
     public static final String IS_ACTIVE_SHOULD_NOT_BE_NULL = "isActive shouldn't be null";
     public static final String PRODUCT_QUANTITY_IS_LESS = "product quantity is less than the purchased quantity";
     public static final String ONE_OR_MORE_PRODUCTS_ARE_INVALID="One or more product IDs are invalid";
+    public static final String PRODUCT_CATEGORY_ID_SHOULD_NOT_BE_NULL = "product category Id shouldn't be null";
+    public static final String CATEGORY_NAME_SHOULD_NOT_BE_EMPTY = "category name shouldn't be empty";
+    public static final String ALREADY_EXISTS_IN_CART = "already  in cart";
+    public static final String PRODUCT_ALREADY_IN_WISHLIST = "already in the wishlist";
 }

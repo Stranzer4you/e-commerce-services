@@ -18,4 +18,7 @@ public class AddProductRequestDTO {
     @NotNull(message = ExceptionConstants.QUALITY_SHOULD_NOT_BE_EMPTY)
     private Integer quantity;
     private Boolean IsAvailable=true;
+    @NotNull(message = ExceptionConstants.PRODUCT_CATEGORY_ID_SHOULD_NOT_BE_NULL)
+    private Long productCategoryId;
+    private Double rating;
 }

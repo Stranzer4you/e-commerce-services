@@ -1,6 +1,8 @@
 package com.ecommerceservice.inventory.service;
 
-import com.ecommerceservice.orders.dao.OrdersDetailsDao;
+import com.ecommerceservice.inventory.dao.ProductCategoryDao;
+import com.ecommerceservice.inventory.model.request.ProductCategoryDto;
+import com.ecommerceservice.inventory.repository.ProductCategoryRepository;
 import com.ecommerceservice.orders.model.request.InventoryUpdateEvent;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
@@ -11,6 +13,7 @@ import com.ecommerceservice.inventory.model.request.AddProductRequestDTO;
 import com.ecommerceservice.inventory.model.request.UpdateProductRequestDto;
 import com.ecommerceservice.inventory.model.response.ProductResponseDTO;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
+import com.ecommerceservice.utility.JdbcUtil;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +41,15 @@ public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private InventoryMapper inventoryMapper;
 
-    @Override
-    public BaseResponse getAllProducts() {
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
 
-        List<Product> productList = inventoryRepository.findAll();
-        List<ProductResponseDTO> responseDTOS = inventoryMapper.convertProductDaoListToDtoList(productList);
+    @Autowired
+    private JdbcUtil jdbcUtil;
+
+    @Override
+    public BaseResponse getAllProducts(Integer categoryId,String searchText) {
+        List<ProductResponseDTO> responseDTOS = jdbcUtil.fetchProductListing(1L,categoryId,searchText);
         return BaseResponseUtility.getBaseResponse(responseDTOS);
     }
 
@@ -55,6 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
         }
         Product product = inventoryMapper.addProductDtoToProductDao(data);
         product.setCreatedAt(LocalDateTime.now());
+        product.setIsActive(Boolean.TRUE);
         product = inventoryRepository.save(product);
         return BaseResponseUtility.getBaseResponse(product);
     }
@@ -124,5 +132,35 @@ public class InventoryServiceImpl implements InventoryService {
         }
         inventoryRepository.saveAll(products);
     }
+
+    @Override
+    public BaseResponse addCategory(List<ProductCategoryDto> dto) {
+        List<ProductCategoryDao> productCategoryDaoList = new ArrayList<>();
+        log.info("dto -> {}",dto);
+        dto.forEach(x->{
+            ProductCategoryDao dao = new ProductCategoryDao();
+            dao.setIsActive(Boolean.TRUE);
+            dao.setCreatedAt(LocalDateTime.now());
+            dao.setProductName(x.getCategoryName());
+            productCategoryDaoList.add(dao);
+        });
+        log.info("productCategoryDaoList -{}",productCategoryDaoList);
+        productCategoryRepository.saveAll(productCategoryDaoList);
+        return BaseResponseUtility.getBaseResponse(productCategoryDaoList);
+    }
+
+    @Override
+    public BaseResponse getAllCategories() {
+        List<ProductCategoryDao> productCategoryDaos = productCategoryRepository.findAllByOrderByIdAsc();
+        return BaseResponseUtility.getBaseResponse(productCategoryDaos);
+    }
+
+    @Override
+    public BaseResponse getProductsByCategoryId(Integer categoryId) {
+        List<Product> products = inventoryRepository.findAllByProductCategoryId(categoryId);
+        List<ProductResponseDTO> responseDTOS = inventoryMapper.convertProductDaoListToDtoList(products);
+        return BaseResponseUtility.getBaseResponse(responseDTOS);
+    }
+
 
 }
