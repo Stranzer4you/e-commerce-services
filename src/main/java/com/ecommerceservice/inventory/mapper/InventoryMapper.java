@@ -1,7 +1,9 @@
 package com.ecommerceservice.inventory.mapper;
 
 import com.ecommerceservice.inventory.dao.Product;
+import com.ecommerceservice.inventory.dao.ProductCategoryDao;
 import com.ecommerceservice.inventory.model.request.AddProductRequestDTO;
+import com.ecommerceservice.inventory.model.request.ProductCategoryDto;
 import com.ecommerceservice.inventory.model.request.UpdateProductRequestDto;
 import com.ecommerceservice.inventory.model.response.ProductResponseDTO;
 import org.mapstruct.Mapper;
@@ -15,5 +17,4 @@ public interface InventoryMapper {
     List<ProductResponseDTO> convertProductDaoListToDtoList(List<Product> productList);
 
     Product addProductDtoToProductDao(AddProductRequestDTO data);
-
 }

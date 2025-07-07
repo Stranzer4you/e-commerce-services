@@ -30,4 +30,9 @@ public class CustomersController {
     public BaseResponse getCustomerById(@PathVariable("customerId") Long customerId) throws BadRequestException {
         return customerService.getCustomerById(customerId);
     }
+
+    @GetMapping("/wishlist/cart/count/{customerId}")
+    public BaseResponse getWishlistCartCount(@PathVariable("customerId") Long customerId){
+        return  customerService.getWishlistCartCount(customerId);
+    }
 }
