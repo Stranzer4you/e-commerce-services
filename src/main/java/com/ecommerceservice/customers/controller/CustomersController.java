@@ -35,4 +35,14 @@ public class CustomersController {
     public BaseResponse getWishlistCartCount(@PathVariable("customerId") Long customerId){
         return  customerService.getWishlistCartCount(customerId);
     }
+
+    @GetMapping("/wishlist")
+    public BaseResponse getWishlist(@RequestParam("customerId") Long customerId) {
+        return customerService.getWishlist(customerId);
+    }
+
+    @GetMapping("/cart")
+    public BaseResponse getCart(@RequestParam("customerId") Long customerId) {
+        return customerService.getCartDetails(customerId);
+    }
 }

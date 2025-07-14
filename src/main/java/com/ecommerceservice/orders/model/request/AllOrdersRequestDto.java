@@ -6,5 +6,6 @@ import java.util.List;
 
 @Data
 public class AllOrdersRequestDto {
-    private List<Integer> orderStatus;
+    private Integer orderStatus;
+    private Long customerId;
 }

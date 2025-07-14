@@ -1,5 +1,7 @@
 package com.ecommerceservice.notifications.service;
 
+import com.ecommerceservice.exceptions.BadRequestException;
+import com.ecommerceservice.notifications.model.response.NotificationResponseDTO;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
@@ -13,6 +15,8 @@ import com.ecommerceservice.notifications.model.request.NotificationRequestEvent
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 import com.ecommerceservice.notifications.model.request.TemplatePlaceHoldersDto;
 import com.ecommerceservice.notifications.repository.NotificationRepository;
+import com.ecommerceservice.utility.JdbcUtil;
+import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,21 +53,19 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private NotificationMessageServiceImpl notificationMessageService;
 
+    @Autowired
+    private JdbcUtil jdbcUtil;
+
     @Value("${notification.type.ids}")
     private List<Integer> notificationTypeIds;
 
 
+
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
-    public BaseResponse getAllNotifications(AllNotificationsRequestDto dto) {
-        List<NotificationDao> notificationDaos;
-        if(!CollectionUtils.isEmpty(dto.getNotificationStatus())){
-            notificationDaos = notificationRepository.findAllByStatusIn(dto.getNotificationStatus());
-        }
-        else{
-            notificationDaos = notificationRepository.findAll();
-        }
-        return BaseResponseUtility.getBaseResponse(notificationDaos);
+    public BaseResponse getAllNotifications(AllNotificationsRequestDto dto) throws BadRequestException {
+        List<NotificationResponseDTO> notifications = jdbcUtil.getCustomerNotifications(dto.getCustomerId(), dto.getModuleId(), dto.getNotificationTypeId());
+        return BaseResponseUtility.getBaseResponse(notifications);
     }
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
