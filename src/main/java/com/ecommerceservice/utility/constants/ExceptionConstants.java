@@ -45,4 +45,5 @@ public class ExceptionConstants {
     public static final String CATEGORY_NAME_SHOULD_NOT_BE_EMPTY = "category name shouldn't be empty";
     public static final String ALREADY_EXISTS_IN_CART = "already  in cart";
     public static final String PRODUCT_ALREADY_IN_WISHLIST = "already in the wishlist";
+    public static final String CART_ID_SHOULD_NOT_BE_EMPTY = "cartId shouldn't be empty";
 }

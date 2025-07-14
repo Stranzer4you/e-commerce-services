@@ -5,6 +5,7 @@ import com.ecommerceservice.utility.BaseResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Repository
@@ -17,4 +18,8 @@ public interface CartItemRepository extends JpaRepository<CartItemDao,Long> {
     Long countByCustomerId(Long customerId);
 
     CartItemDao findByCustomerIdAndProductId(Long customerId, Long productId);
+
+    void deleteByCustomerIdAndProductId(Long customerId,  Long productId);
+
+    void deleteAllByCustomerId(Long customerId);
 }

@@ -1,11 +1,10 @@
 package com.ecommerceservice.customers.controller;
 
-import com.ecommerceservice.customers.model.request.WishlistItemRequestDTO;
+import com.ecommerceservice.customers.model.request.DeleteItemRequestDTO;
 import com.ecommerceservice.customers.service.CustomerService;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.utility.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,13 +18,13 @@ public class WishlistController {
     private CustomerService customerService;
 
     @PostMapping()
-    public BaseResponse addToWishlist(@RequestBody @Valid WishlistItemRequestDTO dto) throws BadRequestException {
+    public BaseResponse addToWishlist(@RequestBody @Valid DeleteItemRequestDTO dto) throws BadRequestException {
          return  customerService.addToWishlist(dto);
 
     }
 
     @DeleteMapping()
-    public BaseResponse removeFromWishlist(@RequestBody @Valid  WishlistItemRequestDTO dto) throws BadRequestException {
+    public BaseResponse removeFromWishlist(@RequestBody @Valid DeleteItemRequestDTO dto) throws BadRequestException {
         return customerService.removeFromWishlist(dto);
     }
 

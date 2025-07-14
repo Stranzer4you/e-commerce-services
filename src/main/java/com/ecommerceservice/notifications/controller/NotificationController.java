@@ -1,13 +1,16 @@
 package com.ecommerceservice.notifications.controller;
 
 
+import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.notifications.model.request.AllNotificationsRequestDto;
 import com.ecommerceservice.notifications.model.request.CreateNotificationRequestDto;
 import com.ecommerceservice.notifications.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,7 +22,7 @@ public class NotificationController {
 
 
     @GetMapping()
-    public BaseResponse getAllOrders(@ModelAttribute AllNotificationsRequestDto dto){
+    public BaseResponse getAllOrders(@ModelAttribute AllNotificationsRequestDto dto) throws BadRequestException {
         return notificationService.getAllNotifications(dto);
     }
 

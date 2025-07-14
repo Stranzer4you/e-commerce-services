@@ -34,5 +34,8 @@ public class CartItemDao {
 
     @Column(name = "\"UpdatedAt\"")
     private LocalDateTime updatedAt;
+
+    @Column(name = "\"Price\"")
+    private Double price;
 }
 

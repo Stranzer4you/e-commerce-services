@@ -4,22 +4,20 @@ import com.ecommerceservice.customers.dao.CartItemDao;
 import com.ecommerceservice.customers.dao.WishlistItemDao;
 import com.ecommerceservice.customers.mapper.CartMapper;
 import com.ecommerceservice.customers.model.request.CartItemRequestDTO;
-import com.ecommerceservice.customers.model.request.WishlistItemRequestDTO;
-import com.ecommerceservice.customers.model.response.CartDetailsResponseDTO;
-import com.ecommerceservice.customers.model.response.WishlistCartCountResponseDto;
+import com.ecommerceservice.customers.model.request.DeleteItemRequestDTO;
+import com.ecommerceservice.customers.model.response.*;
 import com.ecommerceservice.customers.repository.CartItemRepository;
 import com.ecommerceservice.customers.repository.WishListRepository;
-import com.ecommerceservice.inventory.dao.Product;
 import com.ecommerceservice.inventory.repository.InventoryRepository;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
 import com.ecommerceservice.customers.mapper.CustomerMapper;
 import com.ecommerceservice.customers.model.request.AddCustomerRequest;
-import com.ecommerceservice.customers.model.response.CustomerResponse;
 import com.ecommerceservice.customers.repository.CustomerRepository;
 import com.ecommerceservice.exceptions.BadRequestException;
 import com.ecommerceservice.utility.JdbcUtil;
+import com.ecommerceservice.utility.MasterUtility;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,7 +93,11 @@ public class CustomerServiceImpl implements CustomerService{
     public BaseResponse addToCart(CartItemRequestDTO dto) throws BadRequestException {
         CartItemDao dao = cartItemRepository.findByCustomerIdAndProductId(dto.getCustomerId(),dto.getProductId());
         if(!ObjectUtils.isEmpty(dao)){
-            throw new BadRequestException(ExceptionConstants.ALREADY_EXISTS_IN_CART);
+            dao.setQuantity(dao.getQuantity()+1);
+            dao.setPrice(dao.getPrice()+ dao.getPrice());
+            cartItemRepository.save(dao);
+            Long totalCartItems = cartItemRepository.countByCustomerId(dto.getCustomerId());
+            return  BaseResponseUtility.getBaseResponse(totalCartItems);
         }
         CartItemDao cartItemDao = new CartItemDao();
         cartItemDao.setCustomerId(dto.getCustomerId());
@@ -103,6 +105,7 @@ public class CustomerServiceImpl implements CustomerService{
         cartItemDao.setQuantity(dto.getQuantity());
         cartItemDao.setCreatedAt(LocalDateTime.now());
         cartItemDao.setUpdatedAt(LocalDateTime.now());
+        cartItemDao.setPrice(dto.getPrice());
         cartItemRepository.save(cartItemDao);
         Long totalCartItems = cartItemRepository.countByCustomerId(dto.getCustomerId());
         return  BaseResponseUtility.getBaseResponse(totalCartItems);
@@ -116,18 +119,21 @@ public class CustomerServiceImpl implements CustomerService{
             throw new BadRequestException(ExceptionConstants.INVALID_PRODUCT_IDS);
         }
         Map<Long,Integer> requestedQuantities = dto.stream().collect(Collectors.toMap(CartItemRequestDTO::getProductId,CartItemRequestDTO::getQuantity));
+        Map<Long,Double> requestedPrice = dto.stream().collect(Collectors.toMap(CartItemRequestDTO::getProductId,CartItemRequestDTO::getPrice));
         List<CartItemDao> itemsToDelete = new ArrayList<>();
         List<CartItemDao> itemsToUpdate = new ArrayList<>();
 
         // 3. Process each existing cart item
         for (CartItemDao cartItem : cartItemDaos) {
             Long productId = cartItem.getProductId();
+            Double price = requestedPrice.get(productId);
             Integer requestedQty = requestedQuantities.get(productId);
             if (requestedQty == null) continue;
             if (requestedQty <= 0) {
                 itemsToDelete.add(cartItem);
             } else if (!requestedQty.equals(cartItem.getQuantity())) {
                 cartItem.setQuantity(requestedQty);
+                cartItem.setPrice(price);
                 itemsToUpdate.add(cartItem);
             }
         }
@@ -155,7 +161,7 @@ public class CustomerServiceImpl implements CustomerService{
 
 
     @Override
-    public BaseResponse addToWishlist(WishlistItemRequestDTO dto) throws BadRequestException {
+    public BaseResponse addToWishlist(DeleteItemRequestDTO dto) throws BadRequestException {
         requestBodyValidation(dto);
         Optional<WishlistItemDao> existing = wishlistRepository.findByCustomerIdAndProductId(dto.getCustomerId(), dto.getProductId());
         if (existing.isPresent()) {
@@ -173,7 +179,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
-    public BaseResponse removeFromWishlist(WishlistItemRequestDTO dto) throws BadRequestException {
+    public BaseResponse removeFromWishlist(DeleteItemRequestDTO dto) throws BadRequestException {
         requestBodyValidation(dto);
         wishlistRepository.deleteByCustomerIdAndProductId(dto.getCustomerId(), dto.getProductId());
         Long totalWishlistItems = wishlistRepository.countByCustomerId(dto.getCustomerId());
@@ -181,9 +187,24 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public BaseResponse getWishlist(Long customerId) {
-        List<WishlistItemDao> items = wishlistRepository.findAllByCustomerId(customerId);
-        return BaseResponseUtility.getBaseResponse(items);
+    public BaseResponse removeFromCart(DeleteItemRequestDTO dto) throws BadRequestException {
+        requestBodyValidation(dto);
+        cartItemRepository.deleteById(dto.getCartId());
+        Long totalWishlistItems = cartItemRepository.countByCustomerId(dto.getCustomerId());
+        return BaseResponseUtility.getBaseResponse(totalWishlistItems);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public BaseResponse clearCart(Long customerId) {
+        cartItemRepository.deleteAllByCustomerId(customerId);
+        return BaseResponseUtility.getBaseResponse();
+    }
+
+    @Override
+    public BaseResponse  getWishlist(Long customerId) {
+        List<WishlistResponseDTO> wishlistResponseDTOS = jdbcUtil.getCustomerWishlistDetails(customerId);
+        return BaseResponseUtility.getBaseResponse(wishlistResponseDTOS);
     }
 
     @Override
@@ -204,14 +225,21 @@ public class CustomerServiceImpl implements CustomerService{
         return BaseResponseUtility.getBaseResponse(dto);
     }
 
-    public void requestBodyValidation(WishlistItemRequestDTO dto) throws BadRequestException {
+    @Override
+    public BaseResponse getCartDetails(Long customerId) {
+        List<CartResponseDTO> dto = jdbcUtil.getCustomerCartDetails(customerId);
+        return BaseResponseUtility.getBaseResponse(dto);
+    }
+
+
+
+    public void requestBodyValidation(DeleteItemRequestDTO dto) throws BadRequestException {
         CustomerDao customerDao = customerRepository.findByIdAndIsActiveTrue(dto.getCustomerId());
         if(ObjectUtils.isEmpty(customerDao)){
             throw new BadRequestException(ExceptionConstants.INVALID_CUSTOMER);
         }
         inventoryRepository.findById(dto.getProductId()).orElseThrow(()->new BadRequestException(ExceptionConstants.INVALID_PRODUCT_ID));
     }
-
 
 
 

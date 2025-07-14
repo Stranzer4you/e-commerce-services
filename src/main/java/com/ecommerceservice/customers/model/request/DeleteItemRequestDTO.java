@@ -6,9 +6,10 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class WishlistItemRequestDTO {
+public class DeleteItemRequestDTO {
     @NotNull(message = ExceptionConstants.CUSTOMER_ID_SHOULD_NOT_BE_EMPTY)
     private Long customerId;
     @NotNull(message = ExceptionConstants.PRODUCT_ID_SHOULD_NOT_BE_EMPTY)
     private Long productId;
+    private Long cartId;
 }

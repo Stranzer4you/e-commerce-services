@@ -8,5 +8,6 @@ public class CartItemRequestDTO {
     private Long customerId;
     private Long productId;
     private Integer quantity;
+    private Double price;
 
 }
