@@ -1,6 +1,7 @@
 package com.ecommerceservice.orders.service;
 
 import com.ecommerceservice.orders.kafka.OrderKafkaProducer;
+import com.ecommerceservice.orders.model.response.OrdersDataResponseDTO;
 import com.ecommerceservice.utility.BaseResponse;
 import com.ecommerceservice.utility.BaseResponseUtility;
 import com.ecommerceservice.customers.dao.CustomerDao;
@@ -21,6 +22,7 @@ import com.ecommerceservice.orders.repository.OrdersRepository;
 import com.ecommerceservice.payments.model.request.PaymentInitiatedEvent;
 import com.ecommerceservice.payments.model.request.UpdateOrderStatusDto;
 import com.ecommerceservice.payments.service.PaymentServiceImpl;
+import com.ecommerceservice.utility.JdbcUtil;
 import com.ecommerceservice.utility.constants.ExceptionConstants;
 import com.ecommerceservice.utility.enums.ModuleEnum;
 import com.ecommerceservice.utility.enums.OrderStatusEnum;
@@ -66,6 +68,9 @@ public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private OrderKafkaProducer orderKafkaProducer;
 
+    @Autowired
+    private JdbcUtil jdbcUtil;
+
 
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
@@ -93,7 +98,8 @@ public class OrdersServiceImpl implements OrdersService {
             if (requestedQuantity > availableQuantity) {
                 throw new BadRequestException(ExceptionConstants.PRODUCT_OUT_OF_STOCK);
             }
-            Double actualPrice = productPricesMap.get(productId);
+            Double singleUnitPrice = productPricesMap.get(productId);
+            Double actualPrice = singleUnitPrice * requestedQuantity;
             if (!Objects.equals(actualPrice, paidAmount)) {
                 throw new BadRequestException(ExceptionConstants.CUSTOMER_NOT_PAID_FULL_AMOUNT);
             }
@@ -145,13 +151,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public BaseResponse getAllOrders(AllOrdersRequestDto dto) {
-        List<OrdersDao> ordersDaos;
-        if(!CollectionUtils.isEmpty(dto.getOrderStatus())){
-            ordersDaos = ordersRepository.findAllByStatusIn(dto.getOrderStatus());
-        }
-        else{
-            ordersDaos = ordersRepository.findAll();
-        }
+       List<OrdersDataResponseDTO> ordersDaos = jdbcUtil.getCustomerOrders(dto.getCustomerId(),dto.getOrderStatus());
         return BaseResponseUtility.getBaseResponse(ordersDaos);
     }
 
